@@ -9,6 +9,7 @@ neuralNetwork::neuralNetwork() {
     //Do stuff here!
 }
 
+
 neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
     
@@ -26,9 +27,12 @@ neuralNetwork::~neuralNetwork() {
         delete [] weights[i];
 }
 
+
 void neuralNetwork::run() {
     //read the data
+    cout << "Reading the weights..." << endl;
     if(!readWeights("weights.in")) exit(-1);
+    cout << "Reading the patterns..." << endl;
     if(!readInputs("patterns.in")) exit(-2);
     
     //double check the files are compatible
@@ -39,27 +43,33 @@ void neuralNetwork::run() {
         exit(-4);
     }
     
+    cout << "Creating the nodes next..." << endl;
     //allocate the appropriate space
     if(!createNodes()) exit(-3);
+    
+    cout << "Writing the header..." << endl;
+    if(!writeHeader()) exit(-6);
 
     for(int i = 0; i < numPatterns; i++) {
+        cout << "\tUpdating for the next pattern" << endl;
         //update the input values with the
         // next in the pattern!
         updateNodes(patterns[i]);
         
+        cout << "\tCalculating the results" << endl;
         //calculate the patterns with the
         //i-th set of pattern data
         calculateNodes();
         
-        //UPDATE OUTPUT FILE
+        cout << "\tWrite the final stuff in the file" << endl;
+        if(!writeResults()) exit(-99);
     }
-    
-    if(!writeResults()) exit(-99);
     
     cout << "All finished." << endl;
     cout << "Check output.out for the output." << endl;
     
 }
+
 
 bool neuralNetwork::readWeights(string fname) {
     //open the file
@@ -100,6 +110,7 @@ bool neuralNetwork::readWeights(string fname) {
     //once everything is finished, return true
     return true;
 }
+
 
 bool neuralNetwork::readInputs(string fname) {
     //open the file
@@ -142,10 +153,41 @@ bool neuralNetwork::readInputs(string fname) {
     return true;
 }
 
-bool neuralNetwork::writeResults() {
-    cout << "Currently underdevelopment!" << endl;
+
+bool neuralNetwork::writeHeader() {
+    //open the file
+    ofstream file;
+    //return false if it fails
+    file.open("output.out" , ios::trunc);
+        if(file.fail()) return false;
+    //simply write the number of patterns checked
+    file << numPatterns << "\n";
+    //write the file and close
+    file.close();
+    //finally return true
     return true;
 }
+
+bool neuralNetwork::writeResults() {
+    //create the file
+    ofstream file;
+    //open the file in append mode
+    // or return with false upon failure
+    file.open("output.out" , ios::app);
+        if(file.fail()) return false;
+        
+    //write the data of all the output nodes
+    for(int i = 0; i < numOutNodes; i++) {
+        file << outNodes[i]->getValue() << " ";
+    }
+    //add a new line for clarity
+    file << "\n";
+    //close the file
+    file.close();
+    //return
+    return true;
+}
+
 
 bool neuralNetwork::createNodes() {
     //allocate the space
@@ -174,12 +216,16 @@ bool neuralNetwork::createNodes() {
     return true;
 }
 
+
 void neuralNetwork::updateNodes(float *patternSet) {
+    //We must divide by the maxVal in order
+    //to normalize the data
     for(int i = 0; i < numVals; i++) {
         //update the Node to the new value
-        inNodes[i]->setValue(patternSet[i]);
+        inNodes[i]->setValue(patternSet[i]/maxVal);
     }
 }
+
 
 void neuralNetwork::calculateNodes() {
     //the number of values in a pattern

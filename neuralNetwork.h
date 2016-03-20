@@ -23,6 +23,8 @@ class neuralNetwork {
         bool readWeights(string fname);
         // Parse the pattern input and store the variables
         bool readInputs(string fname);
+        // Write the appropriate header in the output file
+        bool writeHeader();
         // Write the results of the summation/sigmoid in the file
         bool writeResults();
         // Create the appropriate number of nodes to run
