@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 
@@ -51,17 +52,17 @@ void neuralNetwork::run() {
     if(!writeHeader()) exit(-6);
 
     for(int i = 0; i < numPatterns; i++) {
-        cout << "\tUpdating for the next pattern" << endl;
+        //cout << "\tUpdating for the next pattern" << endl;
         //update the input values with the
         // next in the pattern!
         updateNodes(patterns[i]);
         
-        cout << "\tCalculating the results" << endl;
+        //cout << "\tCalculating the results" << endl;
         //calculate the patterns with the
         //i-th set of pattern data
         calculateNodes();
         
-        cout << "\tWrite the final stuff in the file" << endl;
+        //cout << "\tWrite the final stuff in the file" << endl;
         if(!writeResults()) exit(-99);
     }
     
@@ -208,7 +209,12 @@ bool neuralNetwork::createNodes() {
     for(int i = 0; i < numOutNodes; i++) {
         //pass in the respective set of
         //weights to the correct nodes
-        outNodes[i] = new node(numInNodes, weights[i]);
+        outNodes[i] = new node(numInNodes);
+    
+        for(int j = 0; j < numInNodes; j++) {
+            outNodes[i]->addWeight(weights[i][j]);
+        }
+        
     }
     
     //if everything is successful
@@ -226,7 +232,6 @@ void neuralNetwork::updateNodes(float *patternSet) {
     }
 }
 
-
 void neuralNetwork::calculateNodes() {
     //the number of values in a pattern
     //set is = numVals! Remember that!
@@ -243,9 +248,17 @@ void neuralNetwork::calculateNodes() {
         
         //for the number of values
         for(int j = 0; j < numVals; j++) {
+            //create two temp variables
+            //useful for debugging
+            float a = outNodes[i]->getWeight(j);
+            float b = inNodes[j]->getValue();
+            
             //increase the set sum
-            sum += outNodes[i]->getWeight(j) * inNodes[j]->getValue();
+            sum += a * b;
         }
+        
+        //sigmoid function
+        sum = sum/sqrt(1+pow(sum,2));
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
