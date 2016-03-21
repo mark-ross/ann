@@ -13,21 +13,10 @@ node::node() {
     value = 0;
 }
 
-node::node(int inNumWeights/*, float *inWeights*/) {
+node::node(int inNumWeights) {
     //allocate the memory
     weights = new float[numWeights];
-   
-   /*
-    //copy the data over into the array
-    for(int i = 0; i < numWeights; i++) {
-        cout << "\t\t\t inWeights:" << inWeights[i] << endl;
-        weights[i] = inWeights[i];
-    }
-    //set the value as null
-    //this will be calculated later
-    value = 0;
-    */
-    
+      
     //used for data check later
     numWeights = inNumWeights;
     currentWeights = 0;
