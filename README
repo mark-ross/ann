@@ -1,0 +1,94 @@
+This project is for a rudimentary ANN.
+
+The project is broken into several indepdent
+files.  Each are listed and described below.
+
+main.cpp
+- This file is the 'driver' file so to speak.
+It simply creates the neural network, and
+runs the ANN calculations before closing.
+
+---------------------------------------------
+node.h && node.cpp
+- These files store the node class.  The class
+is used for storing the output values and the
+associated weights from the output nodes to
+the input nodes.
+
+	~Functions~
+addWeight(float val)
+- Adds a weight to the weights array
+
+setValue(float val)
+- Assigns the value for that node
+to be given variable val
+
+getValue()
+- Returns a float
+
+getWeight(const int i)
+- Returns the weight at the given
+index.  Errors if index is out of
+the array index range.
+--------------------------------------------
+
+--------------------------------------------
+neuralNetwork.h && neuralNetwork.cpp
+- These files contain the primary class
+which creates and the executes the functions
+needed to use the neural network. Below is
+a list of the functions found in the class.
+
+	~Functions~
+bool readWeights(string fname)
+- This function reads into the give file.
+It expects a weights.in template file.
+Finally, it returns false if there was an
+error in opening the file.
+
+	Public
+void run()
+- This function runs all the other functions
+listed in the private section below.  It has
+a small amount of data check to make sure 
+the files are compatible.  Utilizes the
+exit() function to abort if there are problems.
+
+(In the shell, type 'echo $?' to see the return
+value of the last program, including the number
+passed to the exit() function.)
+
+	Private
+bool readInputs(string fname)
+- This function reads into the given file.
+It parses the data from the patterns.in type
+of files.  It returns false if there was a
+problem opening the file.
+
+bool writeHeader()
+- This function writes the header for the
+output.out file where all the results are
+stored.
+
+bool writeResults()
+- Update the output.out files with the 
+values stored in the outNodes.  Each
+line of the file is one set of input
+data.
+
+bool createNodes()
+- Allocate memory and create the right
+number of input and output nodes.
+If there was not enough space, the 
+function will return false.
+
+void updateNodes(float *patternSet);
+- This updates the values in the inNodes
+with the values stored in the array.
+
+void calculateNodes()
+- This function does the summation and
+sigmoid functions, storing the final
+data into the value attribute in the
+outNodes.
+
