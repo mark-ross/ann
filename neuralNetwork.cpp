@@ -14,22 +14,27 @@ neuralNetwork::neuralNetwork() {
 neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
     
+    cout << "Deleting In nodes" << endl;
     //delete all the inNodes
     for(int i = 0; i < numInNodes; i++)
-        delete [] inNodes[i];
+        delete inNodes[i];
         
+    cout << "Deleting hidden nodes" << endl;
     //delete all hidden nodes
     for(int i = 0; i < numHiddenNodes; i++)
-        delete [] hiddenNodes[i];
+        delete hiddenNodes[i];
         
+    cout << "Deleting output nodes" << endl;
     //delete all the outNodes
     for(int i = 0; i < numOutNodes; i++)
-        delete [] outNodes[i];
+        delete outNodes[i];
     
+    cout << "Deleting the patterns" << endl;
     //delete the array of arrays
     for(int i = 0; i < numPatterns; i++)
         delete [] patterns[i];
     
+    cout << "Deleting the stored weights" << endl;
     //delete the array of arrays
     for(int i = 0; i < (numHiddenNodes + numOutNodes); i++)
         delete [] weights[i];
@@ -73,9 +78,9 @@ void neuralNetwork::run() {
     
     //double check the files are compatible
     if(numInNodes != numVals) {
-        cout << "The number of values per pattern do \
-                 not match the number of input nodes.\n\
-                 As a result, we must abort." << endl;
+        cout << "The number of values per pattern do\n"
+             << "not match the number of input nodes.\n"
+             << "As a result, we must abort." << endl;
         exit(-4);
     }
     
@@ -102,8 +107,8 @@ void neuralNetwork::run() {
         if(!writeResults()) exit(-99);
     }
     
-    //cout << "All finished." << endl;
-    //cout << "Check output.out for the output." << endl;
+    cout << "All finished." << endl;
+    cout << "Check output.out for the output." << endl;
     
 }
 
@@ -154,7 +159,7 @@ bool neuralNetwork::readWeights(string fname) {
         
         //loop through the number of columns
         //and stash the weight data
-        for(int j = 0; j < numInNodes; j++) {
+        for(int j = 0; j < numHiddenNodes; j++) {
             file >> weights[i][j];
         }
     }
@@ -341,8 +346,8 @@ void neuralNetwork::calculateNodes() {
         }
         
         //sigmoid function
-        //sum = sum/sqrt(1+pow(sum,2));
-        sum = 1/(1+pow(M_E,(-1*sum)));
+        sum = sum/sqrt(1+pow(sum,2));
+        //sum = 1/(1+pow(M_E,(-1*sum)));
         
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
@@ -371,8 +376,10 @@ void neuralNetwork::calculateNodes() {
         }
         
         //sigmoid function
-        //sum = sum/sqrt(1+pow(sum,2));
-        sum = 1/(1+pow(M_E,(-1*sum)));
+        sum = sum/sqrt(1+pow(sum,2));
+        //sum = 1/(1+pow(M_E,(-1*sum)));
+        
+        cout << "\t\t\tAbout to assign the new value" << endl;
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
