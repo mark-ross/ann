@@ -357,7 +357,7 @@ void neuralNetwork::calculateNodes() {
         hiddenNodes[i]->setValue(sum);
     }
     
-    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
+    for(int i = 0; i < numOutNodes; i++) {
         sum = 0;
         
         cout << "Output node# " << i << endl;
