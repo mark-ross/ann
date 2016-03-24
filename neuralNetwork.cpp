@@ -17,19 +17,21 @@ neuralNetwork::~neuralNetwork() {
     //delete all the inNodes
     for(int i = 0; i < numInNodes; i++)
         delete [] inNodes[i];
+        
     //delete all hidden nodes
     for(int i = 0; i < numHiddenNodes; i++)
         delete [] hiddenNodes[i];
+        
     //delete all the outNodes
     for(int i = 0; i < numOutNodes; i++)
-        delete [] outNodes;
+        delete [] outNodes[i];
     
     //delete the array of arrays
     for(int i = 0; i < numPatterns; i++)
         delete [] patterns[i];
     
     //delete the array of arrays
-    for(int i = 0; i < numOutNodes; i++)
+    for(int i = 0; i < (numHiddenNodes + numOutNodes); i++)
         delete [] weights[i];
 }
 
@@ -40,6 +42,34 @@ void neuralNetwork::run() {
     if(!readWeights("weights.in")) exit(-1);
     //cout << "Reading the patterns..." << endl;
     if(!readInputs("patterns.in")) exit(-2);
+    
+    /*
+    cout << "Write out all the information so far!" << endl;
+    cout << "\tIn nodes: " << numInNodes << endl;
+    cout << "\tHidden Nodes: " << numHiddenNodes << endl;
+    cout << "\tOut Nodes: " << numOutNodes << endl;
+    
+    cout << "\tWeights:" << endl;
+    cout << "\t\tHidden Nodes:" << endl;
+    for(int i = 0; i < numHiddenNodes; i++) {
+        cout << "\t\t\tHidden node #: " << i << endl;
+        for(int j = 0; j < numInNodes; j++) {
+            cout << "\t\t\t\tIn Node # " << j << " -- Weight: " << weights[i][j] << endl;
+        }
+    }
+    
+    cout << "\t\tOutput Nodes:" << endl;
+    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
+        cout << "\t\t\tOutput node #: " << i << endl;
+        for(int j = 0; j < numHiddenNodes; j++) {
+            cout << "\t\t\t\tIn Node # " << j << " -- Weight: " << weights[i][j] << endl;
+        }
+    }
+    
+    cout << "End of tests!" << endl;
+    
+    exit(-999);
+    */
     
     //double check the files are compatible
     if(numInNodes != numVals) {
@@ -57,6 +87,7 @@ void neuralNetwork::run() {
     if(!writeHeader()) exit(-6);
 
     for(int i = 0; i < numPatterns; i++) {
+        cout << "Pattern # " << i << endl;
         //cout << "\tUpdating for the next pattern" << endl;
         //update the input values with the
         // next in the pattern!
@@ -87,20 +118,38 @@ bool neuralNetwork::readWeights(string fname) {
     file.open( fname.c_str() );
         if(file.fail()) return false;
     
-    //read the first two numbers
+    //read the first three numbers
     //and store them in variables
     file >> numInNodes;
+    file >> numHiddenNodes;
     file >> numOutNodes;
     
     //allocate memory or return false
-    weights = new float* [numOutNodes];
+    //There should be hidden# + output# nodes
+    //of rows in the array
+    weights = new float* [numHiddenNodes + numOutNodes];
         if(!weights) return false;
+        
+    // Generate the weights storage for the hidden nodes from input
+    for(int i = 0; i < numHiddenNodes; i++) {
+        weights[i] = new float[numInNodes];
+            if(!weights[i]) return false;
+            
+        //now we loop through the rest of the data
+        for(int j = 0; j < numInNodes; j++) {
+            file >> weights[i][j];
+        }
+    }
     
-    //loop through the number of rows
-    for(int i = 0; i < numOutNodes; i++) {
+    //loop through the number of outNodes
+    //we can start directly at the number since it will be the next
+    //in the set of array indices, assuming I did the math correctly.
+    // Also, the number of iterations must be hidden# + out#. Or these
+    // weights will never be stored
+    for(int i = numHiddenNodes; i < (numOutNodes+numHiddenNodes); i++) {
         
         //allocate even more memory
-        weights[i] = new float[numInNodes];
+        weights[i] = new float[numHiddenNodes];
             if(!weights[i]) return false;
         
         //loop through the number of columns
@@ -205,16 +254,33 @@ bool neuralNetwork::createNodes() {
         inNodes[i] = new node();
     }
     
+    //allocate space for the hidden node layer
+    hiddenNodes = new node* [numHiddenNodes];
+        if(!hiddenNodes) return false;
+        
+    //create each one individually
+    for(int i = 0; i < numHiddenNodes; i++) {
+        hiddenNodes[i] = new node(numInNodes);
+        
+        //loop through and add the weights to
+        //the node's array
+        for(int j = 0; j < numInNodes; j++){
+            hiddenNodes[i]->addWeight(weights[i][j]);
+        }
+    }
+    
+    
     //allocate the space
     //and create the appropriate nodes
     //and set the weight values to an array
     outNodes = new node*[numOutNodes];
         if(!outNodes) return false;
         
-    for(int i = 0; i < numOutNodes; i++) {
+        
+    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
         //pass in the respective set of
         //weights to the correct nodes
-        outNodes[i] = new node(numInNodes);
+        outNodes[i] = new node(numHiddenNodes);
     
         for(int j = 0; j < numInNodes; j++) {
             outNodes[i]->addWeight(weights[i][j]);
@@ -249,29 +315,67 @@ void neuralNetwork::calculateNodes() {
     // and in is the input node
     float sum;
     
-    for(int i = 0; i < numOutNodes; i++) {
+    
+    //first let's calculate the hidden nodes
+    for(int i = 0; i < numHiddenNodes; i++) {
         //clear the junk data
         sum = 0;
-        cout << "outnode = " << i << endl; 
+        
+        cout << "hidden node#: " << i << endl; 
+        
         //for the number of values
-        for(int j = 0; j < numVals; j++) {
-	    cout << "\tinnode = " << j << endl;
+        for(int j = 0; j < numInNodes; j++) {
+            
+	        cout << "\tinnode = " << j << endl;
+	        
             //create two temp variables
             //useful for debugging
-            float a = outNodes[i]->getWeight(j);
+            float a = hiddenNodes[i]->getWeight(j);
             float b = inNodes[j]->getValue();
        
-	    cout << "\t\tweight = " << a << endl;
-	    cout << "\t\tinput = " << b << endl;     
+    	    cout << "\t\tweight = " << a << endl;
+    	    cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             sum += a * b;
         }
         
         //sigmoid function
-        sum = sum/sqrt(1+pow(sum,2));
+        //sum = sum/sqrt(1+pow(sum,2));
+        sum = 1/(1+pow(M_E,(-1*sum)));
+        
+        //set the sum to the output node value
+        hiddenNodes[i]->setValue(sum);
+    }
+    
+    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
+        sum = 0;
+        
+        cout << "Output node# " << i << endl;
+        
+        for(int j = 0; j < numHiddenNodes; j++) {
+            
+            cout << "\tHidden Node# " << j << endl;
+        
+            //create two temp variables
+            //useful for debugging
+            float a = outNodes[i]->getWeight(j);
+            float b = hiddenNodes[j]->getValue();
+       
+    	    cout << "\t\tweight = " << a << endl;
+    	    cout << "\t\tinput = " << b << endl;     
+
+            //increase the set sum
+            sum += a * b;
+            
+        }
+        
+        //sigmoid function
+        //sum = sum/sqrt(1+pow(sum,2));
+        sum = 1/(1+pow(M_E,(-1*sum)));
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
+        
     }
 }
