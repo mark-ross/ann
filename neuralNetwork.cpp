@@ -287,7 +287,7 @@ bool neuralNetwork::createNodes() {
         //weights to the correct nodes
         outNodes[i] = new node(numHiddenNodes);
     
-        for(int j = 0; j < numInNodes; j++) {
+        for(int j = 0; j < numHiddenNodes; j++) {
             //access to the weights have to be
             //offset by the number of hidden nodes
             outNodes[i]->addWeight(weights[(i + numHiddenNodes)][j]);
