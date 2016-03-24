@@ -48,6 +48,7 @@ void neuralNetwork::run() {
     //cout << "Reading the patterns..." << endl;
     if(!readInputs("patterns.in")) exit(-2);
     
+    
     /*
     cout << "Write out all the information so far!" << endl;
     cout << "\tIn nodes: " << numInNodes << endl;
@@ -151,7 +152,7 @@ bool neuralNetwork::readWeights(string fname) {
     //in the set of array indices, assuming I did the math correctly.
     // Also, the number of iterations must be hidden# + out#. Or these
     // weights will never be stored
-    for(int i = numHiddenNodes; i < (numOutNodes+numHiddenNodes); i++) {
+    for(int i = numHiddenNodes; i < (numOutNodes + numHiddenNodes); i++) {
         
         //allocate even more memory
         weights[i] = new float[numHiddenNodes];
@@ -176,7 +177,6 @@ bool neuralNetwork::readInputs(string fname) {
     //open the file
     ifstream file;
     
-    //open the file
     //If there is a problem,
     //return false
     file.open( fname.c_str() );
@@ -282,13 +282,15 @@ bool neuralNetwork::createNodes() {
         if(!outNodes) return false;
         
         
-    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
+    for(int i = 0; i < numOutNodes; i++) {
         //pass in the respective set of
         //weights to the correct nodes
         outNodes[i] = new node(numHiddenNodes);
     
         for(int j = 0; j < numInNodes; j++) {
-            outNodes[i]->addWeight(weights[i][j]);
+            //access to the weights have to be
+            //offset by the number of hidden nodes
+            outNodes[i]->addWeight(weights[(i + numHiddenNodes)][j]);
         }
         
     }
@@ -348,6 +350,8 @@ void neuralNetwork::calculateNodes() {
         //sigmoid function
         sum = sum/sqrt(1+pow(sum,2));
         //sum = 1/(1+pow(M_E,(-1*sum)));
+        
+        cout << "\t\t\tAbout to assign the new value" << endl;
         
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
