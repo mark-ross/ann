@@ -36,9 +36,9 @@ neuralNetwork::~neuralNetwork() {
 
 void neuralNetwork::run() {
     //read the data
-    cout << "Reading the weights..." << endl;
+    //cout << "Reading the weights..." << endl;
     if(!readWeights("weights.in")) exit(-1);
-    cout << "Reading the patterns..." << endl;
+    //cout << "Reading the patterns..." << endl;
     if(!readInputs("patterns.in")) exit(-2);
     
     //double check the files are compatible
@@ -49,11 +49,11 @@ void neuralNetwork::run() {
         exit(-4);
     }
     
-    cout << "Creating the nodes next..." << endl;
+    //cout << "Creating the nodes next..." << endl;
     //allocate the appropriate space
     if(!createNodes()) exit(-3);
     
-    cout << "Writing the header..." << endl;
+    //cout << "Writing the header..." << endl;
     if(!writeHeader()) exit(-6);
 
     for(int i = 0; i < numPatterns; i++) {
@@ -71,8 +71,8 @@ void neuralNetwork::run() {
         if(!writeResults()) exit(-99);
     }
     
-    cout << "All finished." << endl;
-    cout << "Check output.out for the output." << endl;
+    //cout << "All finished." << endl;
+    //cout << "Check output.out for the output." << endl;
     
 }
 
@@ -234,6 +234,8 @@ void neuralNetwork::updateNodes(float *patternSet) {
     for(int i = 0; i < numVals; i++) {
         //update the Node to the new value
         inNodes[i]->setValue(patternSet[i]/maxVal);
+        //cout << "In the pattern set" << patternSet[i] << endl;
+        //cout << "Here it is divided by maxval" << patternSet[i]/maxVal << endl;
     }
 }
 
@@ -250,14 +252,18 @@ void neuralNetwork::calculateNodes() {
     for(int i = 0; i < numOutNodes; i++) {
         //clear the junk data
         sum = 0;
-        
+        cout << "outnode = " << i << endl; 
         //for the number of values
         for(int j = 0; j < numVals; j++) {
+	    cout << "\tinnode = " << j << endl;
             //create two temp variables
             //useful for debugging
             float a = outNodes[i]->getWeight(j);
             float b = inNodes[j]->getValue();
-            
+       
+	    cout << "\t\tweight = " << a << endl;
+	    cout << "\t\tinput = " << b << endl;     
+
             //increase the set sum
             sum += a * b;
         }
