@@ -14,39 +14,52 @@ neuralNetwork::neuralNetwork() {
 neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
     
-    cout << "Deleting In nodes" << endl;
+    //cout << "Deleting In nodes" << endl;
     //delete all the inNodes
     for(int i = 0; i < numInNodes; i++)
         delete inNodes[i];
         
-    cout << "Deleting hidden nodes" << endl;
+    //cout << "Deleting hidden nodes" << endl;
     //delete all hidden nodes
     for(int i = 0; i < numHiddenNodes; i++)
         delete hiddenNodes[i];
         
-    cout << "Deleting output nodes" << endl;
+    //cout << "Deleting output nodes" << endl;
     //delete all the outNodes
     for(int i = 0; i < numOutNodes; i++)
         delete outNodes[i];
     
-    cout << "Deleting the patterns" << endl;
+    //cout << "Deleting the patterns" << endl;
     //delete the array of arrays
     for(int i = 0; i < numPatterns; i++)
         delete [] patterns[i];
     
-    cout << "Deleting the stored weights" << endl;
+    //cout << "Deleting the stored weights" << endl;
     //delete the array of arrays
     for(int i = 0; i < (numHiddenNodes + numOutNodes); i++)
         delete [] weights[i];
 }
 
 
-void neuralNetwork::run() {
+void neuralNetwork::run(int debug) {
+    
+    string folderName;
+
+    
+    //ask the user which folder to look for the files
+    //This allows for multiple test cases
+    cout << "What folder? (no slash) --> ";
+    cin >> folderName;
+
+    string weightsFile = folderName + "/" + "weights.in";
+    string patternsFile = folderName + "/" + "patterns.in";
+    string outputFile = folderName + "/" + "output.out";
+    
     //read the data
     //cout << "Reading the weights..." << endl;
-    if(!readWeights("weights.in")) exit(-1);
+    if(!readWeights(weightsFile)) exit(-1);
     //cout << "Reading the patterns..." << endl;
-    if(!readInputs("patterns.in")) exit(-2);
+    if(!readInputs(patternsFile)) exit(-2);
     
     
     /*
@@ -90,10 +103,10 @@ void neuralNetwork::run() {
     if(!createNodes()) exit(-3);
     
     //cout << "Writing the header..." << endl;
-    if(!writeHeader()) exit(-6);
+    if(!writeHeader(outputFile)) exit(-6);
 
     for(int i = 0; i < numPatterns; i++) {
-        cout << "Pattern # " << i << endl;
+        //cout << "Pattern # " << i << endl;
         //cout << "\tUpdating for the next pattern" << endl;
         //update the input values with the
         // next in the pattern!
@@ -105,7 +118,7 @@ void neuralNetwork::run() {
         calculateNodes();
         
         //cout << "\tWrite the final stuff in the file" << endl;
-        if(!writeResults()) exit(-99);
+        if(!writeResults(outputFile)) exit(-99);
     }
     
     cout << "All finished." << endl;
@@ -214,11 +227,11 @@ bool neuralNetwork::readInputs(string fname) {
 }
 
 
-bool neuralNetwork::writeHeader() {
+bool neuralNetwork::writeHeader(string fname) {
     //open the file
     ofstream file;
     //return false if it fails
-    file.open("output.out" , ios::trunc);
+    file.open( fname.c_str(), ios::trunc);
         if(file.fail()) return false;
     //simply write the number of patterns checked
     file << numPatterns << "\n";
@@ -228,12 +241,12 @@ bool neuralNetwork::writeHeader() {
     return true;
 }
 
-bool neuralNetwork::writeResults() {
+bool neuralNetwork::writeResults(string fname) {
     //create the file
     ofstream file;
     //open the file in append mode
     // or return with false upon failure
-    file.open("output.out" , ios::app);
+    file.open( fname.c_str() , ios::app);
         if(file.fail()) return false;
         
     //write the data of all the output nodes
@@ -328,30 +341,30 @@ void neuralNetwork::calculateNodes() {
         //clear the junk data
         sum = 0;
         
-        cout << "hidden node#: " << i << endl; 
+        //cout << "hidden node#: " << i << endl; 
         
         //for the number of values
         for(int j = 0; j < numInNodes; j++) {
             
-	        cout << "\tinnode = " << j << endl;
+	        //cout << "\tinnode = " << j << endl;
 	        
             //create two temp variables
             //useful for debugging
             float a = hiddenNodes[i]->getWeight(j);
             float b = inNodes[j]->getValue();
        
-    	    cout << "\t\tweight = " << a << endl;
-    	    cout << "\t\tinput = " << b << endl;     
+    	    //cout << "\t\tweight = " << a << endl;
+    	    //cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             sum += a * b;
         }
         
         //sigmoid function
-        sum = sum/sqrt(1+pow(sum,2));
-        //sum = 1/(1+pow(M_E,(-1*sum)));
+        //sum = sum/sqrt(1+pow(sum,2));
+        sum = 1/(1+pow(M_E,(-1*sum)));
         
-        cout << "\t\t\tAbout to assign the new value" << endl;
+        //cout << "\t\t\tAbout to assign the new value" << endl;
         
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
@@ -360,19 +373,19 @@ void neuralNetwork::calculateNodes() {
     for(int i = 0; i < numOutNodes; i++) {
         sum = 0;
         
-        cout << "Output node# " << i << endl;
+        //cout << "Output node# " << i << endl;
         
         for(int j = 0; j < numHiddenNodes; j++) {
             
-            cout << "\tHidden Node# " << j << endl;
+            //cout << "\tHidden Node# " << j << endl;
         
             //create two temp variables
             //useful for debugging
             float a = outNodes[i]->getWeight(j);
             float b = hiddenNodes[j]->getValue();
        
-    	    cout << "\t\tweight = " << a << endl;
-    	    cout << "\t\tinput = " << b << endl;     
+    	    //cout << "\t\tweight = " << a << endl;
+    	    //cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             sum += a * b;
@@ -380,10 +393,10 @@ void neuralNetwork::calculateNodes() {
         }
         
         //sigmoid function
-        sum = sum/sqrt(1+pow(sum,2));
-        //sum = 1/(1+pow(M_E,(-1*sum)));
+        //sum = sum/sqrt(1+pow(sum,2));
+        sum = 1/(1+pow(M_E,(-1*sum)));
         
-        cout << "\t\t\tAbout to assign the new value" << endl;
+        //cout << "\t\t\tAbout to assign the new value" << endl;
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);

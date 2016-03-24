@@ -14,6 +14,7 @@ class neuralNetwork {
         // Also calls the appropciate
         // garbage cleanup at the end.
         void run();
+        void run(int debug = 0);
         
     private:
         /*******************
@@ -24,9 +25,9 @@ class neuralNetwork {
         // Parse the pattern input and store the variables
         bool readInputs(string fname);
         // Write the appropriate header in the output file
-        bool writeHeader();
+        bool writeHeader(string fname);
         // Write the results of the summation/sigmoid in the file
-        bool writeResults();
+        bool writeResults(string fname);
         // Create the appropriate number of nodes to run
         bool createNodes();
         //updates the Nodes to reflect the new pattern values

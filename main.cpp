@@ -8,7 +8,12 @@ using namespace std;
 int main(int argc, char* argv[]) {
     
     neuralNetwork q;
-    q.run();
+    
+    if(argc < 2) {
+        q.run(0);  //without error stuff
+    } else {
+        q.run(1);  //with error calculation
+    }
     
     return 0;
 }
