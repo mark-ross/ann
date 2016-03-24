@@ -39,6 +39,8 @@ class neuralNetwork {
          ******************/
         // The number of input nodes
         int numInNodes;
+        // The number of hidden nodes
+        int numHiddenNodes;
         // The number of output nodes
         int numOutNodes;
         
@@ -54,10 +56,13 @@ class neuralNetwork {
         // num of of nodes = numInNodes + numOutNodes
         // IMPORTANT :: IN NODES ALWAYS FIRST IN ARRAY
         node **inNodes;
+        node **hiddenNodes;
         node **outNodes;
+        
         //Create a 2 dimensional array to hold
         // the data for the patterns.
         float **patterns;
+        
         //create a 2 dimensional array to hold
         // the weights until they can be used
         // to create the nodes.

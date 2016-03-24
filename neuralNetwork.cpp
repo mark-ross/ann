@@ -15,9 +15,14 @@ neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
     
     //delete all the inNodes
-    delete [] inNodes;
+    for(int i = 0; i < numInNodes; i++)
+        delete [] inNodes[i];
+    //delete all hidden nodes
+    for(int i = 0; i < numHiddenNodes; i++)
+        delete [] hiddenNodes[i];
     //delete all the outNodes
-    delete [] outNodes;
+    for(int i = 0; i < numOutNodes; i++)
+        delete [] outNodes;
     
     //delete the array of arrays
     for(int i = 0; i < numPatterns; i++)
