@@ -38,6 +38,10 @@ neuralNetwork::~neuralNetwork() {
     //delete the array of arrays
     for(int i = 0; i < (numHiddenNodes + numOutNodes); i++)
         delete [] weights[i];
+    
+    //delete the training set
+    for(int i = 0; i < numCorrectPatterns; i++)
+        delete [] correct[i];
 }
 
 
@@ -54,12 +58,15 @@ void neuralNetwork::run(int debug) {
     string weightsFile = folderName + "/" + "weights.in";
     string patternsFile = folderName + "/" + "patterns.in";
     string outputFile = folderName + "/" + "output.out";
+    string correctFile = folderName + "/" + "correct.in";
     
     //read the data
     //cout << "Reading the weights..." << endl;
     if(!readWeights(weightsFile)) exit(-1);
     //cout << "Reading the patterns..." << endl;
     if(!readInputs(patternsFile)) exit(-2);
+    //cout << "Reading the training data" << endl;
+    if(!readCorrect(correctFile)) exit(-75);
     
     
     /*
@@ -135,7 +142,11 @@ bool neuralNetwork::readWeights(string fname) {
     //If there is a problem,
     //return false
     file.open( fname.c_str() );
-        if(file.fail()) return false;
+        if(file.fail()) {
+            cout << "Error opening " << fname << endl;
+            cout << "Terminating program" << endl;
+            return false;
+        }
     
     //read the first three numbers
     //and store them in variables
@@ -193,7 +204,11 @@ bool neuralNetwork::readInputs(string fname) {
     //If there is a problem,
     //return false
     file.open( fname.c_str() );
-        if(file.fail()) return false;
+        if(file.fail()) {
+            cout << "Error opening " << fname << endl;
+            cout << "Terminating program" << endl;
+            return false;
+        }
     
     //read the first three numbers
     //and store them in variables
@@ -216,6 +231,61 @@ bool neuralNetwork::readInputs(string fname) {
         //and stash the weight data
         for(int j = 0; j < numVals; j++) {
             file >> patterns[i][j];
+        }
+    }
+    
+    //make sure to close the file before exiting!
+    file.close();
+    
+    //once everything is finished, return true
+    return true;
+}
+
+bool neuralNetwork::readCorrect(string fname) {
+    //open the file
+    ifstream file;
+    
+    //If there is a problem,
+    //return false
+    file.open( fname.c_str() );
+        if(file.fail()) {
+            cout << "Error opening " << fname << endl;
+            cout << "Terminating program" << endl;
+            return false;
+        }
+    
+    //read the first three numbers
+    //and store them in variables
+    file >> numCorrectPatterns;
+    file >> numCorrectOutNodes;
+    
+    if(numOutNodes != numCorrectOutNodes) {
+        cout << "File asserts incompatible number of output nodes" << endl;
+        cout << "Training set incompatible with current network..." << endl;
+        cout << "Terminating program" << endl;
+        return false;
+    } else if(numCorrectPatterns < numPatterns) {
+        cout << "Too few numbers of correct data for this set of patterns" << endl;
+        cout << "Please create a comprehensive training set..." << endl;
+        cout << "Terminating program" << endl;
+        return false;
+    }
+    
+    //allocate memory or return false
+    correct = new float* [numCorrectPatterns];
+        if(!correct) return false;
+    
+    //loop through the number of rows
+    for(int i = 0; i < numCorrectPatterns; i++) {
+        
+        //allocate even more memory
+        correct[i] = new float[numCorrectOutNodes];
+            if(!correct[i]) return false;
+        
+        //loop through the number of columns
+        //and stash the weight data
+        for(int j = 0; j < numCorrectOutNodes; j++) {
+            file >> correct[i][j];
         }
     }
     

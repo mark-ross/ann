@@ -24,6 +24,8 @@ class neuralNetwork {
         bool readWeights(string fname);
         // Parse the pattern input and store the variables
         bool readInputs(string fname);
+        // Parse the goal values so as to calculate error later
+        bool readCorrect(string fname);
         // Write the appropriate header in the output file
         bool writeHeader(string fname);
         // Write the results of the summation/sigmoid in the file
@@ -52,6 +54,11 @@ class neuralNetwork {
         // The maximum value that a value can be in the pattern
         int maxVal;
         
+        //number of correct value patterns
+        int numCorrectPatterns;
+        //number of expected output nodes
+        int numCorrectOutNodes;
+        
         // The dynamically allocated array of nodes
         // that are described in the numbers above
         // num of of nodes = numInNodes + numOutNodes
@@ -68,4 +75,8 @@ class neuralNetwork {
         // the weights until they can be used
         // to create the nodes.
         float **weights;
+        
+        //create a 2D array to hold all the
+        // correct values to be compared later
+        float **correct;
 };
