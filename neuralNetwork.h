@@ -64,9 +64,6 @@ class neuralNetwork {
         //number of expected output nodes
         int numCorrectOutNodes;
         
-        // Calculated error of the whole system
-        float calculatedError
-        
         // The dynamically allocated array of nodes
         // that are described in the numbers above
         // num of of nodes = numInNodes + numOutNodes
@@ -91,4 +88,8 @@ class neuralNetwork {
         //create a 2D array to hold all the
         // previous answers
         float **answers;
+        
+        //create a 2D array to hold all the
+        // calculated errors of the system
+        float **error;
 };

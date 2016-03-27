@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -42,6 +42,9 @@ neuralNetwork::~neuralNetwork() {
     //delete the training set
     for(int i = 0; i < numCorrectPatterns; i++)
         delete [] correct[i];
+        
+    for(int i = 0; i < numCorrectPatterns; i++)
+        delete [] error[i];
 }
 
 
@@ -102,6 +105,8 @@ void neuralNetwork::run(int debug) {
         //cout << "\tWrite the final stuff in the file" << endl;
         if(!writeResults(outputFile)) exit(-99);
     }
+    
+    calculateError();
     
     cout << "All finished." << endl;
     cout << "Check output.out for the output." << endl;
@@ -256,6 +261,10 @@ bool neuralNetwork::readCorrect(string fname) {
     //allocate memory or return false
     correct = new float* [numCorrectPatterns];
         if(!correct) return false;
+        
+    //allocate memory for the error array
+    error = new float*[numPatterns];
+        if(!error) return false;
     
     //loop through the number of rows
     for(int i = 0; i < numCorrectPatterns; i++) {
@@ -263,7 +272,12 @@ bool neuralNetwork::readCorrect(string fname) {
         //allocate even more memory
         correct[i] = new float[numCorrectOutNodes];
             if(!correct[i]) return false;
-        
+            
+        // For each of the output nodes
+        error[i] = new float[numOutNodes];
+            if(!error[i]) return false;
+            
+            
         //loop through the number of columns
         //and stash the weight data
         for(int j = 0; j < numCorrectOutNodes; j++) {
@@ -467,18 +481,12 @@ void neuralNetwork::calculateNodes() {
 
 
 void neuralNetwork::calculateError() {
-    
-    //create some temp variables to break up the full calculation
-    float a = 0;
-    
     // For all the patterns calculated
     for (int i = 0; i < numCorrectPatterns; i++) {
-        // For each of the output nodes
+        
         for(int j = 0; j < numOutNodes; j++) {
-            a += abs(correct[i][j] - answers[i][j]);
+            float a = correct[i][j] - answers[i][j];
+            error[i][j] = 0.5 * abs(a);
         }
     }
-    
-    calculatedError = 0.5 * a;
-    
 }
