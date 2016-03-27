@@ -23,6 +23,7 @@ class neuralNetwork {
         // Parse the input file and store the variables
         bool readWeights(string fname);
         // Parse the pattern input and store the variables
+        // Also allocates the space for the answers 2D array
         bool readInputs(string fname);
         // Parse the goal values so as to calculate error later
         bool readCorrect(string fname);
@@ -34,8 +35,12 @@ class neuralNetwork {
         bool createNodes();
         //updates the Nodes to reflect the new pattern values
         void updateNodes(float *patternSet);
+        // updates the information in the answers array to hold the new answers
+        void storeAnswers(int index);
         // Run the summation on all the output nodes
         void calculateNodes();
+        // Calculate the error of the given vs. the goal
+        void calculateError();
         
         /*******************
          * DATA ************
@@ -59,6 +64,9 @@ class neuralNetwork {
         //number of expected output nodes
         int numCorrectOutNodes;
         
+        // Calculated error of the whole system
+        float calculatedError
+        
         // The dynamically allocated array of nodes
         // that are described in the numbers above
         // num of of nodes = numInNodes + numOutNodes
@@ -79,4 +87,8 @@ class neuralNetwork {
         //create a 2D array to hold all the
         // correct values to be compared later
         float **correct;
+        
+        //create a 2D array to hold all the
+        // previous answers
+        float **answers;
 };

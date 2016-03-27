@@ -69,34 +69,6 @@ void neuralNetwork::run(int debug) {
     if(!readCorrect(correctFile)) exit(-75);
     
     
-    /*
-    cout << "Write out all the information so far!" << endl;
-    cout << "\tIn nodes: " << numInNodes << endl;
-    cout << "\tHidden Nodes: " << numHiddenNodes << endl;
-    cout << "\tOut Nodes: " << numOutNodes << endl;
-    
-    cout << "\tWeights:" << endl;
-    cout << "\t\tHidden Nodes:" << endl;
-    for(int i = 0; i < numHiddenNodes; i++) {
-        cout << "\t\t\tHidden node #: " << i << endl;
-        for(int j = 0; j < numInNodes; j++) {
-            cout << "\t\t\t\tIn Node # " << j << " -- Weight: " << weights[i][j] << endl;
-        }
-    }
-    
-    cout << "\t\tOutput Nodes:" << endl;
-    for(int i = numHiddenNodes; i < (numHiddenNodes + numOutNodes); i++) {
-        cout << "\t\t\tOutput node #: " << i << endl;
-        for(int j = 0; j < numHiddenNodes; j++) {
-            cout << "\t\t\t\tIn Node # " << j << " -- Weight: " << weights[i][j] << endl;
-        }
-    }
-    
-    cout << "End of tests!" << endl;
-    
-    exit(-999);
-    */
-    
     //double check the files are compatible
     if(numInNodes != numVals) {
         cout << "The number of values per pattern do\n"
@@ -111,7 +83,7 @@ void neuralNetwork::run(int debug) {
     
     //cout << "Writing the header..." << endl;
     if(!writeHeader(outputFile)) exit(-6);
-
+    
     for(int i = 0; i < numPatterns; i++) {
         //cout << "Pattern # " << i << endl;
         //cout << "\tUpdating for the next pattern" << endl;
@@ -123,6 +95,9 @@ void neuralNetwork::run(int debug) {
         //calculate the patterns with the
         //i-th set of pattern data
         calculateNodes();
+        
+        //store the answers in the answers 2D array
+        storeAnswers(i);
         
         //cout << "\tWrite the final stuff in the file" << endl;
         if(!writeResults(outputFile)) exit(-99);
@@ -219,6 +194,9 @@ bool neuralNetwork::readInputs(string fname) {
     //allocate memory or return false
     patterns = new float* [numPatterns];
         if(!patterns) return false;
+        
+    answers = new float* [numPatterns];
+        if(!answers) return false;
     
     //loop through the number of rows
     for(int i = 0; i < numPatterns; i++) {
@@ -226,6 +204,10 @@ bool neuralNetwork::readInputs(string fname) {
         //allocate even more memory
         patterns[i] = new float[numVals];
             if(!patterns[i]) return false;
+            
+        //no need to assign anything yet
+        //just create the space for later
+        answers[i] = new float[numOutNodes];
         
         //loop through the number of columns
         //and stash the weight data
@@ -395,6 +377,15 @@ void neuralNetwork::updateNodes(float *patternSet) {
     }
 }
 
+void neuralNetwork::storeAnswers(int index) {
+    //for all the output nodes
+    for(int i = 0; i < numOutNodes; i++) {
+        //set the answers array to the value of the outNode.value()
+        //Now all the weights can be stored and used later.
+        answers[index][i] = outNodes[i]->getValue();
+    }
+}
+
 void neuralNetwork::calculateNodes() {
     //the number of values in a pattern
     //set is = numVals! Remember that!
@@ -472,4 +463,22 @@ void neuralNetwork::calculateNodes() {
         outNodes[i]->setValue(sum);
         
     }
+}
+
+
+void neuralNetwork::calculateError() {
+    
+    //create some temp variables to break up the full calculation
+    float a = 0;
+    
+    // For all the patterns calculated
+    for (int i = 0; i < numCorrectPatterns; i++) {
+        // For each of the output nodes
+        for(int j = 0; j < numOutNodes; j++) {
+            a += abs(correct[i][j] - answers[i][j]);
+        }
+    }
+    
+    calculatedError = 0.5 * a;
+    
 }
