@@ -34,11 +34,16 @@ neuralNetwork::~neuralNetwork() {
     for(int i = 0; i < numPatterns; i++)
         delete [] patterns[i];
     
-    //cout << "Deleting the stored weights" << endl;
+    //cout << "Deleting the stored input weights" << endl;
     //delete the array of arrays
-    for(int i = 0; i < (numHiddenNodes + numOutNodes); i++)
-        delete [] weights[i];
+    for(int i = 0; i < numHiddenNodes; i++)
+        delete [] inWeights[i];
     
+    //cout << "Deleteing the stored hidden weights" << endl;
+    for(int i = 0; i < numOutNodes; i++)
+        delete [] hiddenWeights[i];
+    
+    //cout << "Deleting the training data array" << endl;
     //delete the training set
     for(int i = 0; i < numCorrectPatterns; i++)
         delete [] correct[i];
@@ -50,8 +55,21 @@ neuralNetwork::~neuralNetwork() {
 
 void neuralNetwork::run(int debug) {
     
-    string folderName;
+    fileRead();
+    runData();
+    
+    calculateError();
+    updateWeights();
+    
+    cout << "All finished." << endl;
+    cout << "Check output.out for the output." << endl;
+    
+}
 
+
+void neuralNetwork::fileRead() {
+    
+    string folderName;
     
     //ask the user which folder to look for the files
     //This allows for multiple test cases
@@ -60,8 +78,10 @@ void neuralNetwork::run(int debug) {
 
     string weightsFile = folderName + "/" + "weights.in";
     string patternsFile = folderName + "/" + "patterns.in";
-    string outputFile = folderName + "/" + "output.out";
     string correctFile = folderName + "/" + "correct.in";
+    
+    //this is a class variable, doesn't need to be declared again
+    outputFile = folderName + "/" + "output.out";
     
     //read the data
     //cout << "Reading the weights..." << endl;
@@ -79,37 +99,6 @@ void neuralNetwork::run(int debug) {
              << "As a result, we must abort." << endl;
         exit(-4);
     }
-    
-    //cout << "Creating the nodes next..." << endl;
-    //allocate the appropriate space
-    if(!createNodes()) exit(-3);
-    
-    //cout << "Writing the header..." << endl;
-    if(!writeHeader(outputFile)) exit(-6);
-    
-    for(int i = 0; i < numPatterns; i++) {
-        //cout << "Pattern # " << i << endl;
-        //cout << "\tUpdating for the next pattern" << endl;
-        //update the input values with the
-        // next in the pattern!
-        updateNodes(patterns[i]);
-        
-        //cout << "\tCalculating the results" << endl;
-        //calculate the patterns with the
-        //i-th set of pattern data
-        calculateNodes();
-        
-        //store the answers in the answers 2D array
-        storeAnswers(i);
-        
-        //cout << "\tWrite the final stuff in the file" << endl;
-        if(!writeResults(outputFile)) exit(-99);
-    }
-    
-    calculateError();
-    
-    cout << "All finished." << endl;
-    cout << "Check output.out for the output." << endl;
     
 }
 
@@ -137,17 +126,17 @@ bool neuralNetwork::readWeights(string fname) {
     //allocate memory or return false
     //There should be hidden# + output# nodes
     //of rows in the array
-    weights = new float* [numHiddenNodes + numOutNodes];
-        if(!weights) return false;
+    inWeights = new float* [numHiddenNodes];
+        if(!inWeights) return false;
         
     // Generate the weights storage for the hidden nodes from input
     for(int i = 0; i < numHiddenNodes; i++) {
-        weights[i] = new float[numInNodes];
-            if(!weights[i]) return false;
+        inWeights[i] = new float[numInNodes];
+            if(!inWeights[i]) return false;
             
         //now we loop through the rest of the data
         for(int j = 0; j < numInNodes; j++) {
-            file >> weights[i][j];
+            file >> inWeights[i][j];
         }
     }
     
@@ -156,16 +145,20 @@ bool neuralNetwork::readWeights(string fname) {
     //in the set of array indices, assuming I did the math correctly.
     // Also, the number of iterations must be hidden# + out#. Or these
     // weights will never be stored
-    for(int i = numHiddenNodes; i < (numOutNodes + numHiddenNodes); i++) {
+    
+    hiddenWeights = new float* [numOutNodes];
+        if(!hiddenWeights) return false;
+    
+    for(int i = 0; i < numOutNodes; i++) {
         
         //allocate even more memory
-        weights[i] = new float[numHiddenNodes];
-            if(!weights[i]) return false;
+        hiddenWeights[i] = new float[numHiddenNodes];
+            if(!hiddenWeights[i]) return false;
         
         //loop through the number of columns
         //and stash the weight data
         for(int j = 0; j < numHiddenNodes; j++) {
-            file >> weights[i][j];
+            file >> hiddenWeights[i][j];
         }
     }
     
@@ -328,6 +321,35 @@ bool neuralNetwork::writeResults(string fname) {
 }
 
 
+void neuralNetwork::runData() {
+    //cout << "Creating the nodes next..." << endl;
+    //allocate the appropriate space
+    if(!createNodes()) exit(-3);
+    
+    //cout << "Writing the header..." << endl;
+    if(!writeHeader(outputFile)) exit(-6);
+    
+    for(int i = 0; i < numPatterns; i++) {
+        //cout << "Pattern # " << i << endl;
+        //cout << "\tUpdating for the next pattern" << endl;
+        //update the input values with the
+        // next in the pattern!
+        updateNodes(patterns[i]);
+        
+        //cout << "\tCalculating the results" << endl;
+        //calculate the patterns with the
+        //i-th set of pattern data
+        calculateNodes();
+        
+        //store the answers in the answers 2D array
+        storeAnswers(i);
+        
+        //cout << "\tWrite the final stuff in the file" << endl;
+        if(!writeResults(outputFile)) exit(-99);
+    }
+}
+
+
 bool neuralNetwork::createNodes() {
     //allocate the space
     //and create the appropriate nodes
@@ -349,7 +371,7 @@ bool neuralNetwork::createNodes() {
         //loop through and add the weights to
         //the node's array
         for(int j = 0; j < numInNodes; j++){
-            hiddenNodes[i]->addWeight(weights[i][j]);
+            hiddenNodes[i]->addWeight(inWeights[i][j]);
         }
     }
     
@@ -369,7 +391,7 @@ bool neuralNetwork::createNodes() {
         for(int j = 0; j < numHiddenNodes; j++) {
             //access to the weights have to be
             //offset by the number of hidden nodes
-            outNodes[i]->addWeight(weights[(i + numHiddenNodes)][j]);
+            outNodes[i]->addWeight(hiddenWeights[i][j]);
         }
         
     }
@@ -489,4 +511,9 @@ void neuralNetwork::calculateError() {
             error[i][j] = 0.5 * abs(a);
         }
     }
+}
+
+
+void neuralNetwork:: updateWeights() {
+    //
 }
