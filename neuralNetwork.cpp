@@ -48,18 +48,36 @@ neuralNetwork::~neuralNetwork() {
     for(int i = 0; i < numCorrectPatterns; i++)
         delete [] correct[i];
         
+    //cout << "Deleting the error" << endl;
     for(int i = 0; i < numCorrectPatterns; i++)
         delete [] error[i];
+        
+    //cout << "Deleting the answers given from the system" << endl;
+    //delete all the answers, both for output and hidden
+    for(int i = 0; i < numPatterns; i++) {
+        delete [] outAnswers[i];
+        delete [] hiddenAnswers[i];
+    }
+    
+    //cout << "Finished deleting everything" << endl;
 }
 
 
-void neuralNetwork::run(int debug) {
+void neuralNetwork::run(int flag) {
+    
+    //determine whether to run the
+    //correction code or not
+    if(flag == 1) debug = true;
+    else          debug = false;
     
     fileRead();
     runData();
     
-    calculateError();
-    updateWeights();
+    if(debug) {
+        cout << "Running the back propagation stuffs..." << endl;
+        calculateError();
+        updateHiddenWeights();
+    }
     
     cout << "All finished." << endl;
     cout << "Check output.out for the output." << endl;
@@ -193,8 +211,11 @@ bool neuralNetwork::readInputs(string fname) {
     patterns = new float* [numPatterns];
         if(!patterns) return false;
         
-    answers = new float* [numPatterns];
-        if(!answers) return false;
+    outAnswers = new float* [numPatterns];
+        if(!outAnswers) return false;
+        
+    hiddenAnswers = new float* [numPatterns];
+        if(!hiddenAnswers) return false;
     
     //loop through the number of rows
     for(int i = 0; i < numPatterns; i++) {
@@ -205,7 +226,11 @@ bool neuralNetwork::readInputs(string fname) {
             
         //no need to assign anything yet
         //just create the space for later
-        answers[i] = new float[numOutNodes];
+        outAnswers[i] = new float[numOutNodes];
+            if(!outAnswers[i]) return false;
+            
+        hiddenAnswers[i] = new float[numHiddenNodes];
+            if(!hiddenAnswers[i]) return false;
         
         //loop through the number of columns
         //and stash the weight data
@@ -418,7 +443,14 @@ void neuralNetwork::storeAnswers(int index) {
     for(int i = 0; i < numOutNodes; i++) {
         //set the answers array to the value of the outNode.value()
         //Now all the weights can be stored and used later.
-        answers[index][i] = outNodes[i]->getValue();
+        outAnswers[index][i] = outNodes[i]->getValue();
+    }
+    
+    //for all the hidden nodes
+    for(int i = 0; i < numHiddenNodes; i++) {
+        //set the value in the hiddenAnswer to the value
+        //of the hidden nodes. Used in back propagation
+        hiddenAnswers[index][i] = hiddenNodes[i]->getValue();
     }
 }
 
@@ -507,13 +539,53 @@ void neuralNetwork::calculateError() {
     for (int i = 0; i < numCorrectPatterns; i++) {
         
         for(int j = 0; j < numOutNodes; j++) {
-            float a = correct[i][j] - answers[i][j];
+            float a = correct[i][j] - outAnswers[i][j];
             error[i][j] = 0.5 * abs(a);
         }
     }
 }
 
 
-void neuralNetwork:: updateWeights() {
-    //
+void neuralNetwork::updateHiddenWeights() {
+    
+    float summation = 0;
+    float alpha = 1.0;
+
+    //for each of the outnodes
+    for(int j = 0; j < numOutNodes; j++) {
+        //and for each of the hidden nodes
+        for(int i = 0; i < numHiddenNodes; i++) {
+            //for all the patterns
+            for(int k = 0; k < numPatterns; k++) {
+                //calculate the sigma value (pp. 185, equation 5.24b)
+                float sigma = -1.0 * (correct[k][j] - outAnswers[k][j]);
+                //finally finish the derivative by multiplying by the
+                //yield of hidden node at index i
+                float derivative = sigma * hiddenAnswers[k][i];
+                summation += alpha * derivative;
+            }
+        
+        //finally, the weight of index j, i is...
+        hiddenWeights[j][i] = hiddenWeights[j][i] + summation;
+        summation = 0;
+        }
+    }
+}
+
+void neuralNetwork::updateInputWeights() {
+    float summation = 0;
+    float beta = 1.0;
+    
+    for(int k = 0; k < numPatterns; k++) {
+        for(int i = 0; i < numHiddenNodes; i++) {
+            
+            float a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
+            
+            for(int j = 0; j < numOutNodes; j++) {
+                //summation += 
+            }
+        }
+    }
+    float derivative_of_k_i;
+    
 }

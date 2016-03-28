@@ -49,7 +49,8 @@ class neuralNetwork {
         void calculateError();
         // Calculate the difference needed in the weights and
         // then store that new information in the array
-        void updateWeights();
+        void updateHiddenWeights();
+        void updateInputWeights();
         
         /*******************
          * DATA ************
@@ -73,6 +74,11 @@ class neuralNetwork {
         //number of expected output nodes
         int numCorrectOutNodes;
         
+        //set the flag to determine whether or not to run
+        // the backpropagation code
+        bool debug;
+        
+        //save the file name for the output later
         string outputFile;
         
         // The dynamically allocated array of nodes
@@ -99,7 +105,11 @@ class neuralNetwork {
         
         //create a 2D array to hold all the
         // previous answers
-        float **answers;
+        float **outAnswers;
+        
+        //create a 2D array to hold the hidden
+        // layer results
+        float **hiddenAnswers;
         
         //create a 2D array to hold all the
         // calculated errors of the system
