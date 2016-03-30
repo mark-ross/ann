@@ -558,7 +558,7 @@ void neuralNetwork::updateHiddenWeights() {
             //for all the patterns
             for(int k = 0; k < numPatterns; k++) {
                 //calculate the sigma value (pp. 185, equation 5.24b)
-                float sigma = -1.0 * (correct[k][j] - outAnswers[k][j]);
+                float sigma = correct[k][j] - outAnswers[k][j];
                 //finally finish the derivative by multiplying by the
                 //yield of hidden node at index i
                 float derivative = sigma * hiddenAnswers[k][i];
