@@ -144,12 +144,12 @@ bool neuralNetwork::readWeights(string fname) {
     //allocate memory or return false
     //There should be hidden# + output# nodes
     //of rows in the array
-    inWeights = new float* [numHiddenNodes];
+    inWeights = new double* [numHiddenNodes];
         if(!inWeights) return false;
         
     // Generate the weights storage for the hidden nodes from input
     for(int i = 0; i < numHiddenNodes; i++) {
-        inWeights[i] = new float[numInNodes];
+        inWeights[i] = new double[numInNodes];
             if(!inWeights[i]) return false;
             
         //now we loop through the rest of the data
@@ -164,13 +164,13 @@ bool neuralNetwork::readWeights(string fname) {
     // Also, the number of iterations must be hidden# + out#. Or these
     // weights will never be stored
     
-    hiddenWeights = new float* [numOutNodes];
+    hiddenWeights = new double* [numOutNodes];
         if(!hiddenWeights) return false;
     
     for(int i = 0; i < numOutNodes; i++) {
         
         //allocate even more memory
-        hiddenWeights[i] = new float[numHiddenNodes];
+        hiddenWeights[i] = new double[numHiddenNodes];
             if(!hiddenWeights[i]) return false;
         
         //loop through the number of columns
@@ -208,28 +208,28 @@ bool neuralNetwork::readInputs(string fname) {
     file >> maxVal;
     
     //allocate memory or return false
-    patterns = new float* [numPatterns];
+    patterns = new double* [numPatterns];
         if(!patterns) return false;
         
-    outAnswers = new float* [numPatterns];
+    outAnswers = new double* [numPatterns];
         if(!outAnswers) return false;
         
-    hiddenAnswers = new float* [numPatterns];
+    hiddenAnswers = new double* [numPatterns];
         if(!hiddenAnswers) return false;
     
     //loop through the number of rows
     for(int i = 0; i < numPatterns; i++) {
         
         //allocate even more memory
-        patterns[i] = new float[numVals];
+        patterns[i] = new double[numVals];
             if(!patterns[i]) return false;
             
         //no need to assign anything yet
         //just create the space for later
-        outAnswers[i] = new float[numOutNodes];
+        outAnswers[i] = new double[numOutNodes];
             if(!outAnswers[i]) return false;
             
-        hiddenAnswers[i] = new float[numHiddenNodes];
+        hiddenAnswers[i] = new double[numHiddenNodes];
             if(!hiddenAnswers[i]) return false;
         
         //loop through the number of columns
@@ -277,22 +277,22 @@ bool neuralNetwork::readCorrect(string fname) {
     }
     
     //allocate memory or return false
-    correct = new float* [numCorrectPatterns];
+    correct = new double* [numCorrectPatterns];
         if(!correct) return false;
         
     //allocate memory for the error array
-    error = new float*[numPatterns];
+    error = new double*[numPatterns];
         if(!error) return false;
     
     //loop through the number of rows
     for(int i = 0; i < numCorrectPatterns; i++) {
         
         //allocate even more memory
-        correct[i] = new float[numCorrectOutNodes];
+        correct[i] = new double[numCorrectOutNodes];
             if(!correct[i]) return false;
             
         // For each of the output nodes
-        error[i] = new float[numOutNodes];
+        error[i] = new double[numOutNodes];
             if(!error[i]) return false;
             
             
@@ -427,7 +427,7 @@ bool neuralNetwork::createNodes() {
 }
 
 
-void neuralNetwork::updateNodes(float *patternSet) {
+void neuralNetwork::updateNodes(double *patternSet) {
     //We must divide by the maxVal in order
     //to normalize the data
     for(int i = 0; i < numVals; i++) {
@@ -462,7 +462,7 @@ void neuralNetwork::calculateNodes() {
     //out.value = out[i].weights[j] * in[j].value
     // where out is the output node
     // and in is the input node
-    float sum;
+    double sum;
     
     
     //first let's calculate the hidden nodes
@@ -479,8 +479,8 @@ void neuralNetwork::calculateNodes() {
 	        
             //create two temp variables
             //useful for debugging
-            float a = hiddenNodes[i]->getWeight(j);
-            float b = inNodes[j]->getValue();
+            double a = hiddenNodes[i]->getWeight(j);
+            double b = inNodes[j]->getValue();
        
     	    //cout << "\t\tweight = " << a << endl;
     	    //cout << "\t\tinput = " << b << endl;     
@@ -510,8 +510,8 @@ void neuralNetwork::calculateNodes() {
         
             //create two temp variables
             //useful for debugging
-            float a = outNodes[i]->getWeight(j);
-            float b = hiddenNodes[j]->getValue();
+            double a = outNodes[i]->getWeight(j);
+            double b = hiddenNodes[j]->getValue();
        
     	    //cout << "\t\tweight = " << a << endl;
     	    //cout << "\t\tinput = " << b << endl;     
@@ -539,7 +539,7 @@ void neuralNetwork::calculateError() {
     for (int i = 0; i < numCorrectPatterns; i++) {
         
         for(int j = 0; j < numOutNodes; j++) {
-            float a = correct[i][j] - outAnswers[i][j];
+            double a = correct[i][j] - outAnswers[i][j];
             error[i][j] = 0.5 * abs(a);
         }
     }
@@ -548,8 +548,8 @@ void neuralNetwork::calculateError() {
 
 void neuralNetwork::updateHiddenWeights() {
     
-    float summation = 0;
-    float alpha = 1.0;
+    double summation = 0;
+    double alpha = 1.0;
 
     //for each of the outnodes
     for(int j = 0; j < numOutNodes; j++) {
@@ -558,10 +558,10 @@ void neuralNetwork::updateHiddenWeights() {
             //for all the patterns
             for(int k = 0; k < numPatterns; k++) {
                 //calculate the sigma value (pp. 185, equation 5.24b)
-                float sigma = -1.0 * (correct[k][j] - outAnswers[k][j]);
+                double sigma = -1.0 * (correct[k][j] - outAnswers[k][j]);
                 //finally finish the derivative by multiplying by the
                 //yield of hidden node at index i
-                float derivative = sigma * hiddenAnswers[k][i];
+                double derivative = sigma * hiddenAnswers[k][i];
                 summation += alpha * derivative;
             }
         
@@ -573,19 +573,19 @@ void neuralNetwork::updateHiddenWeights() {
 }
 
 void neuralNetwork::updateInputWeights() {
-    float summation = 0;
-    float beta = 1.0;
+    double summation = 0;
+    double beta = 1.0;
     
     for(int k = 0; k < numPatterns; k++) {
         for(int i = 0; i < numHiddenNodes; i++) {
             
-            float a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
+            double a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
             
             for(int j = 0; j < numOutNodes; j++) {
                 //summation += 
             }
         }
     }
-    float derivative_of_k_i;
+    double derivative_of_k_i;
     
 }

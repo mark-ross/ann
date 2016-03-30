@@ -4,20 +4,20 @@ class node {
         //for the input Nodes
         node();
         //for the output nodes
-        node(int inNumWeights/*, float *inWeights*/);
+        node(int inNumWeights/*, double *inWeights*/);
         ~node();
         
         //returns values
         //no direct access to member variables;
-        void addWeight(float val);
-        void setValue(float val);
-        float getValue();
-        float getWeight(const int i);
+        void addWeight(double val);
+        void setValue(double val);
+        double getValue();
+        double getWeight(const int i);
         
     private:
         
-        float value;
-        float *weights;
+        double value;
+        double *weights;
         int numWeights;
         int currentWeights;
 };
