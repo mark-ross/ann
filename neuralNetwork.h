@@ -39,7 +39,7 @@ class neuralNetwork {
         void runData();
             bool createNodes();
             //updates the Nodes to reflect the new pattern values
-            void updateNodes(double *patternSet);
+            void updateNodes(float *patternSet);
             // updates the information in the answers array to hold the new answers
             void storeAnswers(int index);
             // Run the summation on all the output nodes
@@ -91,27 +91,27 @@ class neuralNetwork {
         
         //Create a 2 dimensional array to hold
         // the data for the patterns.
-        double **patterns;
+        float **patterns;
         
         //create a 2 dimensional array to hold
         // the weights until they can be used
         // to create the nodes.
-        double **inWeights;
-        double **hiddenWeights;
+        float **inWeights;
+        float **hiddenWeights;
         
         //create a 2D array to hold all the
         // correct values to be compared later
-        double **correct;
+        float **correct;
         
         //create a 2D array to hold all the
         // previous answers
-        double **outAnswers;
+        float **outAnswers;
         
         //create a 2D array to hold the hidden
         // layer results
-        double **hiddenAnswers;
+        float **hiddenAnswers;
         
         //create a 2D array to hold all the
         // calculated errors of the system
-        double **error;
+        float **error;
 };

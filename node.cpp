@@ -15,7 +15,7 @@ node::node() {
 
 node::node(int inNumWeights) {
     //allocate the memory
-    weights = new double[numWeights];
+    weights = new float[numWeights];
       
     //used for data check later
     numWeights = inNumWeights;
@@ -27,23 +27,23 @@ node::~node() {
     delete [] weights;
 }
 
-void node::addWeight(double val) {
+void node::addWeight(float val) {
     if(currentWeights < numWeights) {
         weights[currentWeights] = val;
         currentWeights++;
     }
 }
 
-void node::setValue(double val) {
+void node::setValue(float val) {
     value = val;
 }
 
-double node::getValue() {
+float node::getValue() {
     //simply return the weights
     return value;
 }
 
-double node::getWeight(const int i) {
+float node::getWeight(const int i) {
     //if there are no weights, error out
     if(weights == 0) exit(-42);
     //if the index is outside the array, error out
