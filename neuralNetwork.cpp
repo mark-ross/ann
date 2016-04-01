@@ -14,54 +14,54 @@ neuralNetwork::neuralNetwork() {
 neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
     
-    cout << "Deleting In nodes" << endl;
+    //cout << "Deleting In nodes" << endl;
     //delete all the inNodes
     for(int i = 0; i < numInNodes; i++)
         delete inNodes[i];
         
-    cout << "Deleting hidden nodes" << endl;
+    //cout << "Deleting hidden nodes" << endl;
     //delete all hidden nodes
     for(int i = 0; i < numHiddenNodes; i++)
         delete hiddenNodes[i];
         
-    cout << "Deleting output nodes" << endl;
+    //cout << "Deleting output nodes" << endl;
     //delete all the outNodes
     for(int i = 0; i < numOutNodes; i++)
         delete outNodes[i];
     
-    cout << "Deleting the patterns" << endl;
+    //cout << "Deleting the patterns" << endl;
     //delete the array of arrays
     for(int i = 0; i < numPatterns; i++)
         delete [] patterns[i];
     
-    cout << "Deleting the stored input weights" << endl;
+    //cout << "Deleting the stored input weights" << endl;
     //delete the array of arrays
     for(int i = 0; i < numHiddenNodes; i++)
         delete [] inWeights[i];
     
-    cout << "Deleteing the stored hidden weights" << endl;
+    //cout << "Deleteing the stored hidden weights" << endl;
     for(int i = 0; i < numOutNodes; i++)
         delete [] hiddenWeights[i];
     
     if(debug == true) {
-        cout << "Deleting the training data array" << endl;
+        //cout << "Deleting the training data array" << endl;
         //delete the training set
         for(int i = 0; i < numCorrectPatterns; i++)
             delete [] correct[i];
             
-        cout << "Deleting the error" << endl;
+        //cout << "Deleting the error" << endl;
         for(int i = 0; i < numCorrectPatterns; i++)
             delete [] error[i];
     }
         
-    cout << "Deleting the answers given from the system" << endl;
+    //cout << "Deleting the answers given from the system" << endl;
     //delete all the answers, both for output and hidden
     for(int i = 0; i < numPatterns; i++) {
         delete [] outAnswers[i];
         delete [] hiddenAnswers[i];
     }
     
-    cout << "Finished deleting everything" << endl;
+    //cout << "Finished deleting everything" << endl;
 }
 
 
@@ -88,8 +88,6 @@ void neuralNetwork::run(int flag) {
 
 
 void neuralNetwork::fileRead() {
-    
-    string folderName;
     
     //ask the user which folder to look for the files
     //This allows for multiple test cases
@@ -349,6 +347,24 @@ bool neuralNetwork::writeResults(string fname) {
 }
 
 
+bool neuralNetwork::writeSystemError() {
+    string fname = folderName + "/" + "error.out";
+    ofstream file;
+    
+    file.open( fname.c_str() , ios::trunc);
+        if(file.fail()) return false;
+        
+    file << systemError << "\n";
+    
+    for(int k = 0; k < numPatterns; k++) {
+        for(int i = 0; i < numOutNodes; i++) {
+            file << error[k][i] << " ";
+        }
+        file << "\n";
+    }
+}
+
+
 void neuralNetwork::runData() {
     //cout << "Creating the nodes next..." << endl;
     //allocate the appropriate space
@@ -467,7 +483,7 @@ void neuralNetwork::calculateNodes() {
     // and in is the input node
     float sum;
     
-    cout << "Calculating Input nodes" << endl;
+    //cout << "Calculating Input nodes" << endl;
     
     //first let's calculate the hidden nodes
     for(int i = 0; i < numHiddenNodes; i++) {
@@ -486,14 +502,14 @@ void neuralNetwork::calculateNodes() {
             float a = hiddenNodes[i]->getWeight(j);
             float b = inNodes[j]->getValue();
        
-    	    cout << "\t\tweight = " << a << endl;
-    	    cout << "\t\tinput = " << b << endl;     
+    	    //cout << "\t\tweight = " << a << endl;
+    	    //cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             float result = a*b;
-            cout << "\t\t\tresult of input * weight = " << result << endl;;
+            //cout << "\t\t\tresult of input * weight = " << result << endl;;
             sum += result;
-            cout << "\tsum = " << sum << endl;
+            //cout << "\tsum = " << sum << endl;
             
         }
         
@@ -503,13 +519,13 @@ void neuralNetwork::calculateNodes() {
         exponent++; //add 1 to it.
         sum = 1/exponent;
         
-        cout << "\tAbout to assign the new value " << sum << endl;
+        //cout << "\tAbout to assign the new value " << sum << endl;
         
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
     }
     
-    cout << "Now to the output nodes" << endl;
+    //cout << "Now to the output nodes" << endl;
     
     for(int i = 0; i < numOutNodes; i++) {
         sum = 0;
@@ -525,14 +541,14 @@ void neuralNetwork::calculateNodes() {
             float a = outNodes[i]->getWeight(j);
             float b = hiddenNodes[j]->getValue();
        
-    	    cout << "\t\tweight = " << a << endl;
-    	    cout << "\t\tinput = " << b << endl;     
+    	    //cout << "\t\tweight = " << a << endl;
+    	    //cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             float result = a*b;
-            cout << "\t\t\tresult of input * weight = " << result << endl;;
+            //cout << "\t\t\tresult of input * weight = " << result << endl;;
             sum += result;
-            cout << "\tsum = " << sum << endl;
+            //cout << "\tsum = " << sum << endl;
             
         }
         
@@ -542,8 +558,7 @@ void neuralNetwork::calculateNodes() {
         exponent++; //add 1 to it.
         sum = 1/exponent;
         
-        cout << "\tAbout to assign the new value " << sum << endl;
-        
+        //cout << "\tAbout to assign the new value " << sum << endl;
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
@@ -553,13 +568,26 @@ void neuralNetwork::calculateNodes() {
 
 
 void neuralNetwork::calculateError() {
+    float summation = 0;
     // For all the patterns calculated
     for (int k = 0; k < numCorrectPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
-            float a = correct[k][i] - outAnswers[k][i];
-            error[k][i] = 0.5 * abs(a);
+            cout << "\tGoal answer: " << correct [k][i] << "  Actual answer: " << outAnswers[k][i] << endl;
+            float a = abs(correct[k][i] - outAnswers[k][i]);
+            cout << "\tResult is: " << a << endl;
+            float b = pow(a,2);
+            summation += a;
+            cout << "\t\tSummation = " << summation << endl;
+            error[k][i] = a;
         }
     }
+    
+    
+    systemError = summation * 0.5;
+    cout << "total system error = " << systemError << endl;
+    
+    
+    writeSystemError();
 }
 
 

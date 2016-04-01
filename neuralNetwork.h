@@ -47,6 +47,8 @@ class neuralNetwork {
         
         // Calculate the error of the given vs. the goal
         void calculateError();
+        // Output the calculated error to a file
+        bool writeSystemError();
         // Calculate the difference needed in the weights and
         // then store that new information in the array
         void updateHiddenWeights();
@@ -74,12 +76,16 @@ class neuralNetwork {
         //number of expected output nodes
         int numCorrectOutNodes;
         
+        //number for total system error
+        float systemError;
+        
         //set the flag to determine whether or not to run
         // the backpropagation code
         bool debug;
         
         //save the file name for the output later
         string outputFile;
+        string folderName;
         
         // The dynamically allocated array of nodes
         // that are described in the numbers above
