@@ -386,36 +386,26 @@ bool neuralNetwork::createNodes() {
         }
     }
     
-    
     //allocate the space
-    //and create the appropriate nodes
-    //and set the weight values to an array
     outNodes = new node*[numOutNodes];
         if(!outNodes) return false;
         
-        
     for(int i = 0; i < numOutNodes; i++) {
-        //pass in the respective set of
-        //weights to the correct nodes
+        //pass in the respective set of weights to the correct nodes
         outNodes[i] = new node(numHiddenNodes);
     
         for(int j = 0; j < numHiddenNodes; j++) {
-            //access to the weights have to be
-            //offset by the number of hidden nodes
+            //access to the weights have to be offset by the number of hidden nodes
             outNodes[i]->addWeight(hiddenWeights[i][j]);
         }
-        
     }
-    
-    //if everything is successful
-    //return true
+
     return true;
 }
 
 
 void neuralNetwork::updateNodes(float *patternSet) {
-    //We must divide by the maxVal in order
-    //to normalize the data
+    //We must divide by the maxVal in order to normalize the data
     for(int i = 0; i < numVals; i++) {
         //update the Node to the new value
         inNodes[i]->setValue(patternSet[i]/maxVal);
@@ -426,7 +416,6 @@ void neuralNetwork::storeAnswers(int index) {
     //for all the output nodes
     for(int i = 0; i < numOutNodes; i++) {
         //set the answers array to the value of the outNode.value()
-        //Now all the weights can be stored and used later.
         outAnswers[index][i] = outNodes[i]->getValue();
     }
     
@@ -439,28 +428,16 @@ void neuralNetwork::storeAnswers(int index) {
 }
 
 void neuralNetwork::calculateNodes() {
-    //the number of values in a pattern
-    //set is = numVals! Remember that!
-    
-    //value of output node is...
-    //out.value = out[i].weights[j] * in[j].value
-    // where out is the output node
-    // and in is the input node
+
     float sum;
-    
-    //cout << "Calculating Input nodes" << endl;
     
     //first let's calculate the hidden nodes
     for(int i = 0; i < numHiddenNodes; i++) {
         //clear the junk data
         sum = 0;
         
-        //cout << "hidden node#: " << i << endl; 
-        
         //for the number of values
         for(int j = 0; j < numInNodes; j++) {
-            
-	        //cout << "\tinnode = " << j << endl;
 	        
             //create two temp variables
             //useful for debugging
@@ -468,40 +445,33 @@ void neuralNetwork::calculateNodes() {
             float b = inNodes[j]->getValue();
 
             //increase the set sum
-            float result = a*b;
-            sum += result;
+            sum += a*b;
             
         }
         
         //sigmoid function
-        //sum = sum/sqrt(1+pow(sum,2));
-        float exponent = pow(M_E,(-1 * sum));
-        exponent++; //add 1 to it.
-        sum = 1/exponent;
+        sum = 1/(1+exp(-sum));
         
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
     }
     
     for(int i = 0; i < numOutNodes; i++) {
-        sum = 0;
+        sum = 0;  //zero out the sum
         
         for(int j = 0; j < numHiddenNodes; j++) {
-            
             //create two temp variables
             //useful for debugging
             float a = outNodes[i]->getWeight(j);
             float b = hiddenNodes[j]->getValue();
        
             //increase the set sum
-            float result = a*b;
-            sum += result;
+            sum += a*b;
             
         }
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
-        
     }
 }
 
@@ -511,17 +481,16 @@ void neuralNetwork::calculateError() {
     // For all the patterns calculated
     for (int k = 0; k < numCorrectPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
+            //sigma-k-j in the book
             float a = abs(correct[k][i] - outAnswers[k][i]);
-            float b = pow(a,2);
-            summation += a;
             error[k][i] = a;
+            
+            summation += pow(a,2);  //for error in the book
         }
     }
     
-    
     systemError = summation * 0.5;
     cout << "total system error = " << systemError << endl;
-    
     
     writeSystemError();
 }
