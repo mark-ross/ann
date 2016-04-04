@@ -508,15 +508,16 @@ void neuralNetwork::updateHiddenWeights() {
             //for all the patterns
             for(int k = 0; k < numPatterns; k++) {
                 //calculate the sigma value (pp. 185, equation 5.24b)
-                float sigma = correct[k][j] - outAnswers[k][j];
+                //float sigma = correct[k][j] - outAnswers[k][j];
+                float sigma = error[k][j];
+                
                 //finally finish the derivative by multiplying by the
                 //yield of hidden node at index i
-                float derivative = sigma * hiddenAnswers[k][i];
-                summation += alpha * derivative;
+                summation += sigma * hiddenAnswers[k][i];
             }
         
         //finally, the weight of index j, i is...
-        hiddenWeights[j][i] = hiddenWeights[j][i] + summation;
+        hiddenWeights[j][i] = hiddenWeights[j][i] + (alpha * summation);
         summation = 0;
         }
     }
@@ -525,17 +526,27 @@ void neuralNetwork::updateHiddenWeights() {
 void neuralNetwork::updateInputWeights() {
     float summation = 0;
     float beta = 1.0;
+    float temp = 0;
     
-    for(int k = 0; k < numPatterns; k++) {
-        for(int i = 0; i < numHiddenNodes; i++) {
-            
-            float a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
-            
-            for(int j = 0; j < numOutNodes; j++) {
-                //summation += 
+
+    for(int i = 0; i < numHiddenNodes; i++) {
+        for(int h = 0; h < numInNodes; h++) {
+            for(int k = 0; k < numPatterns; k++) {
+                temp = 0;  //zero it out
+                float a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
+                
+                //perform the summation over all the original errors
+                for(int j = 0; j < numOutNodes; j++)
+                   temp += error[k][j] * hiddenWeights[j][i];
+                
+                //summation for the final equation
+                summation += temp * patterns[k][h];
             }
+            
+            //adjust the old weight with the results of the summations
+            inWeights[i][h] = inWeights[i][h] + (beta * summation);
+            
         }
     }
-    float derivative_of_k_i;
     
 }
