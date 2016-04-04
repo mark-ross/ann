@@ -270,7 +270,7 @@ bool neuralNetwork::readCorrect(string fname) {
         cout << "Training set incompatible with current network..." << endl;
         cout << "Terminating program" << endl;
         return false;
-    } else if(numCorrectPatterns < numPatterns) {
+    } else if(numCorrectPatterns != numPatterns) {
         cout << "Too few numbers of correct data for this set of patterns" << endl;
         cout << "Please create a comprehensive training set..." << endl;
         cout << "Terminating program" << endl;
@@ -354,11 +354,12 @@ bool neuralNetwork::writeSystemError() {
     file.open( fname.c_str() , ios::trunc);
         if(file.fail()) return false;
         
-    file << systemError << "\n";
+    file << (floor(systemError * 100000)/100000) << "\n";
     
     for(int k = 0; k < numPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
-            file << error[k][i] << " ";
+            //set the number of digits to 5 for rounding
+            file << (floor(error[k][i] * 100000)/100000) << " ";
         }
         file << "\n";
     }
@@ -554,9 +555,9 @@ void neuralNetwork::calculateNodes() {
         
         //sigmoid function
         //sum = sum/sqrt(1+pow(sum,2));
-        float exponent = pow(M_E,(-1 * sum));
-        exponent++; //add 1 to it.
-        sum = 1/exponent;
+        //float exponent = pow(M_E,(-1 * sum));
+        //exponent++; //add 1 to it.
+        //sum = 1/exponent;
         
         //cout << "\tAbout to assign the new value " << sum << endl;
         
