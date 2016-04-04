@@ -6,6 +6,10 @@
 
 using namespace std;
 
+float digit_rounding(float num) {
+    return (floor(num*100000))/100000;
+}
+
 neuralNetwork::neuralNetwork() {
     //Do stuff here!
 }
@@ -13,55 +17,32 @@ neuralNetwork::neuralNetwork() {
 
 neuralNetwork::~neuralNetwork() {
     //Delete stuff here!
-    
-    //cout << "Deleting In nodes" << endl;
     //delete all the inNodes
     for(int i = 0; i < numInNodes; i++)
         delete inNodes[i];
-        
-    //cout << "Deleting hidden nodes" << endl;
     //delete all hidden nodes
-    for(int i = 0; i < numHiddenNodes; i++)
+    for(int i = 0; i < numHiddenNodes; i++) {
         delete hiddenNodes[i];
-        
-    //cout << "Deleting output nodes" << endl;
-    //delete all the outNodes
-    for(int i = 0; i < numOutNodes; i++)
-        delete outNodes[i];
-    
-    //cout << "Deleting the patterns" << endl;
-    //delete the array of arrays
-    for(int i = 0; i < numPatterns; i++)
-        delete [] patterns[i];
-    
-    //cout << "Deleting the stored input weights" << endl;
-    //delete the array of arrays
-    for(int i = 0; i < numHiddenNodes; i++)
         delete [] inWeights[i];
-    
-    //cout << "Deleteing the stored hidden weights" << endl;
-    for(int i = 0; i < numOutNodes; i++)
-        delete [] hiddenWeights[i];
-    
-    if(debug == true) {
-        //cout << "Deleting the training data array" << endl;
-        //delete the training set
-        for(int i = 0; i < numCorrectPatterns; i++)
-            delete [] correct[i];
-            
-        //cout << "Deleting the error" << endl;
-        for(int i = 0; i < numCorrectPatterns; i++)
-            delete [] error[i];
     }
-        
-    //cout << "Deleting the answers given from the system" << endl;
+    //delete all the outNodes
+    for(int i = 0; i < numOutNodes; i++) {
+        delete outNodes[i];
+        delete [] hiddenWeights[i];
+    }
+    if(debug == true) {
+        //delete the training set
+        for(int i = 0; i < numCorrectPatterns; i++) {
+            delete [] correct[i];
+            delete [] error[i];
+        }
+    }
     //delete all the answers, both for output and hidden
     for(int i = 0; i < numPatterns; i++) {
+        delete [] patterns[i];
         delete [] outAnswers[i];
         delete [] hiddenAnswers[i];
     }
-    
-    //cout << "Finished deleting everything" << endl;
 }
 
 
@@ -102,12 +83,9 @@ void neuralNetwork::fileRead() {
     outputFile = folderName + "/" + "output.out";
     
     //read the data
-    //cout << "Reading the weights..." << endl;
     if(!readWeights(weightsFile)) exit(-1);
-    //cout << "Reading the patterns..." << endl;
     if(!readInputs(patternsFile)) exit(-2);
     if(debug == true)
-        //cout << "Reading the training data" << endl;
         if(!readCorrect(correctFile)) exit(-75);
     
     
@@ -159,12 +137,7 @@ bool neuralNetwork::readWeights(string fname) {
         }
     }
     
-    //loop through the number of outNodes
-    //we can start directly at the number since it will be the next
-    //in the set of array indices, assuming I did the math correctly.
-    // Also, the number of iterations must be hidden# + out#. Or these
-    // weights will never be stored
-    
+    //allocate memory for the weights
     hiddenWeights = new float* [numOutNodes];
         if(!hiddenWeights) return false;
     
@@ -296,7 +269,6 @@ bool neuralNetwork::readCorrect(string fname) {
         error[i] = new float[numOutNodes];
             if(!error[i]) return false;
             
-            
         //loop through the number of columns
         //and stash the weight data
         for(int j = 0; j < numCorrectOutNodes; j++) {
@@ -315,20 +287,20 @@ bool neuralNetwork::readCorrect(string fname) {
 bool neuralNetwork::writeHeader(string fname) {
     //open the file
     ofstream file;
-    //return false if it fails
+
     file.open( fname.c_str(), ios::trunc);
         if(file.fail()) return false;
+        
     //simply write the number of patterns checked
     file << numPatterns << "\n";
-    //write the file and close
     file.close();
-    //finally return true
     return true;
 }
 
 bool neuralNetwork::writeResults(string fname) {
     //create the file
     ofstream file;
+    
     //open the file in append mode
     // or return with false upon failure
     file.open( fname.c_str() , ios::app);
@@ -338,11 +310,10 @@ bool neuralNetwork::writeResults(string fname) {
     for(int i = 0; i < numOutNodes; i++) {
         file << outNodes[i]->getValue() << " ";
     }
+    
     //add a new line for clarity
     file << "\n";
-    //close the file
     file.close();
-    //return
     return true;
 }
 
@@ -354,12 +325,12 @@ bool neuralNetwork::writeSystemError() {
     file.open( fname.c_str() , ios::trunc);
         if(file.fail()) return false;
         
-    file << (floor(systemError * 100000)/100000) << "\n";
+    file << digit_rounding(systemError) << "\n";
     
     for(int k = 0; k < numPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
             //set the number of digits to 5 for rounding
-            file << (floor(error[k][i] * 100000)/100000) << " ";
+            file << digit_rounding(error[k][i]) << " ";
         }
         file << "\n";
     }
@@ -367,7 +338,6 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::runData() {
-    //cout << "Creating the nodes next..." << endl;
     //allocate the appropriate space
     if(!createNodes()) exit(-3);
     
@@ -375,13 +345,10 @@ void neuralNetwork::runData() {
     if(!writeHeader(outputFile)) exit(-6);
     
     for(int i = 0; i < numPatterns; i++) {
-        //cout << "Pattern # " << i << endl;
-        //cout << "\tUpdating for the next pattern" << endl;
         //update the input values with the
         // next in the pattern!
         updateNodes(patterns[i]);
         
-        //cout << "\tCalculating the results" << endl;
         //calculate the patterns with the
         //i-th set of pattern data
         calculateNodes();
@@ -389,7 +356,6 @@ void neuralNetwork::runData() {
         //store the answers in the answers 2D array
         storeAnswers(i);
         
-        //cout << "\tWrite the final stuff in the file" << endl;
         if(!writeResults(outputFile)) exit(-99);
     }
 }
@@ -453,8 +419,6 @@ void neuralNetwork::updateNodes(float *patternSet) {
     for(int i = 0; i < numVals; i++) {
         //update the Node to the new value
         inNodes[i]->setValue(patternSet[i]/maxVal);
-        //cout << "In the pattern set" << patternSet[i] << endl;
-        //cout << "Here it is divided by maxval" << patternSet[i]/maxVal << endl;
     }
 }
 
@@ -502,15 +466,10 @@ void neuralNetwork::calculateNodes() {
             //useful for debugging
             float a = hiddenNodes[i]->getWeight(j);
             float b = inNodes[j]->getValue();
-       
-    	    //cout << "\t\tweight = " << a << endl;
-    	    //cout << "\t\tinput = " << b << endl;     
 
             //increase the set sum
             float result = a*b;
-            //cout << "\t\t\tresult of input * weight = " << result << endl;;
             sum += result;
-            //cout << "\tsum = " << sum << endl;
             
         }
         
@@ -520,46 +479,25 @@ void neuralNetwork::calculateNodes() {
         exponent++; //add 1 to it.
         sum = 1/exponent;
         
-        //cout << "\tAbout to assign the new value " << sum << endl;
-        
         //set the sum to the output node value
         hiddenNodes[i]->setValue(sum);
     }
     
-    //cout << "Now to the output nodes" << endl;
-    
     for(int i = 0; i < numOutNodes; i++) {
         sum = 0;
         
-        //cout << "Output node# " << i << endl;
-        
         for(int j = 0; j < numHiddenNodes; j++) {
             
-            //cout << "\tHidden Node# " << j << endl;
-        
             //create two temp variables
             //useful for debugging
             float a = outNodes[i]->getWeight(j);
             float b = hiddenNodes[j]->getValue();
        
-    	    //cout << "\t\tweight = " << a << endl;
-    	    //cout << "\t\tinput = " << b << endl;     
-
             //increase the set sum
             float result = a*b;
-            //cout << "\t\t\tresult of input * weight = " << result << endl;;
             sum += result;
-            //cout << "\tsum = " << sum << endl;
             
         }
-        
-        //sigmoid function
-        //sum = sum/sqrt(1+pow(sum,2));
-        //float exponent = pow(M_E,(-1 * sum));
-        //exponent++; //add 1 to it.
-        //sum = 1/exponent;
-        
-        //cout << "\tAbout to assign the new value " << sum << endl;
         
         //set the sum to the output node value
         outNodes[i]->setValue(sum);
@@ -573,12 +511,9 @@ void neuralNetwork::calculateError() {
     // For all the patterns calculated
     for (int k = 0; k < numCorrectPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
-            cout << "\tGoal answer: " << correct [k][i] << "  Actual answer: " << outAnswers[k][i] << endl;
             float a = abs(correct[k][i] - outAnswers[k][i]);
-            cout << "\tResult is: " << a << endl;
             float b = pow(a,2);
             summation += a;
-            cout << "\t\tSummation = " << summation << endl;
             error[k][i] = a;
         }
     }
