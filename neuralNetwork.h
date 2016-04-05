@@ -35,9 +35,9 @@ class neuralNetwork {
         // Write the results of the summation/sigmoid in the file
         bool writeResults(string fname);
         // Create the appropriate number of nodes to run
+        bool createNodes();
         
         void runData();
-            bool createNodes();
             //updates the Nodes to reflect the new pattern values
             void updateNodes(float *patternSet);
             // updates the information in the answers array to hold the new answers
@@ -53,6 +53,8 @@ class neuralNetwork {
         // then store that new information in the array
         void updateHiddenWeights();
         void updateInputWeights();
+        // Updates the weights stored in the nodes
+        void updateNodeWeights();
         
         /*******************
          * DATA ************

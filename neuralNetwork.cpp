@@ -54,12 +54,20 @@ void neuralNetwork::run(int flag) {
     else          debug = false;
     
     fileRead();
-    runData();
     
-    if(debug) {
-        cout << "Running the back propagation stuffs..." << endl;
-        calculateError();
-        updateHiddenWeights();
+    //allocate the appropriate space
+    if(!createNodes()) exit(-3);
+    
+    while(systemError > 0.0) {
+        runData();
+        
+        if(debug) {
+            calculateError();
+            updateHiddenWeights();
+            updateInputWeights();
+            updateNodeWeights();
+        }
+        cin.get();
     }
     
     cout << "All finished." << endl;
@@ -297,6 +305,7 @@ bool neuralNetwork::writeHeader(string fname) {
     return true;
 }
 
+
 bool neuralNetwork::writeResults(string fname) {
     //create the file
     ofstream file;
@@ -338,8 +347,6 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::runData() {
-    //allocate the appropriate space
-    if(!createNodes()) exit(-3);
     
     //cout << "Writing the header..." << endl;
     if(!writeHeader(outputFile)) exit(-6);
@@ -401,6 +408,27 @@ bool neuralNetwork::createNodes() {
     }
 
     return true;
+}
+
+//to be used after back propagation is calculated
+void neuralNetwork::updateNodeWeights() {
+    for(int i = 0; i < numHiddenNodes; i++) {
+        //refresh the counter so we put the data in the right spot
+        hiddenNodes[i]->resetCurrentWeightCounter();
+        
+        for(int j = 0; j < numInNodes; j++) {
+            hiddenNodes[i]->addWeight(inWeights[i][j]);
+        }
+    }
+    
+    for(int i = 0; i < numOutNodes; i++) {
+        //refresh the counter
+        outNodes[i]->resetCurrentWeightCounter();
+        
+        for(int j = 0; j < numHiddenNodes; j++){
+            outNodes[i]->addWeight(hiddenWeights[i][j]);
+        }
+    }
 }
 
 

@@ -13,6 +13,7 @@ class node {
         void setValue(float val);
         float getValue();
         float getWeight(const int i);
+        void resetCurrentWeightCounter();
         
     private:
         

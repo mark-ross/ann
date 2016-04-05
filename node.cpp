@@ -38,6 +38,10 @@ void node::setValue(float val) {
     value = val;
 }
 
+void node::resetCurrentWeightCounter() {
+    currentWeights = 0;
+}
+
 float node::getValue() {
     //simply return the weights
     return value;
