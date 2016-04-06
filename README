@@ -1,6 +1,6 @@
 This project is for a rudimentary ANN.
 
-The project is broken into several indepdent
+The project is broken into several independent
 files.  Each are listed and described below.
 
 main.cpp
