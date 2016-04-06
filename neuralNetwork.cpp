@@ -59,6 +59,7 @@ void neuralNetwork::run(int flag) {
     if(!createNodes()) exit(-3);
     
     while(systemError > 0.0) {
+        cin.get();
         runData();
         
         if(debug) {
@@ -67,7 +68,6 @@ void neuralNetwork::run(int flag) {
             updateInputWeights();
             updateNodeWeights();
         }
-        cin.get();
     }
     
     cout << "All finished." << endl;
@@ -488,7 +488,7 @@ void neuralNetwork::calculateError() {
     for (int k = 0; k < numCorrectPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
             //sigma-k-j in the book
-            float a = abs(correct[k][i] - outAnswers[k][i]);
+            float a = correct[k][i] - outAnswers[k][i];
             error[k][i] = a;
             
             summation += pow(a,2);  //for error in the book
@@ -507,19 +507,19 @@ void neuralNetwork::updateHiddenWeights() {
     float summation = 0;
     float alpha = 1.0;
 
-    //for each of the outnodes
     for(int j = 0; j < numOutNodes; j++) {
-        //and for each of the hidden nodes
         for(int i = 0; i < numHiddenNodes; i++) {
+            
             //for all the patterns
             for(int k = 0; k < numPatterns; k++) {
+                
                 //calculate the sigma value (pp. 185, equation 5.24b)
                 //float sigma = correct[k][j] - outAnswers[k][j];
                 float sigma = error[k][j];
                 
                 //finally finish the derivative by multiplying by the
                 //yield of hidden node at index i
-                summation += sigma * hiddenAnswers[k][i];
+                summation += -sigma * hiddenAnswers[k][i];
             }
         
         //finally, the weight of index j, i is...
@@ -539,6 +539,8 @@ void neuralNetwork::updateInputWeights() {
         for(int h = 0; h < numInNodes; h++) {
             for(int k = 0; k < numPatterns; k++) {
                 temp = 0;  //zero it out
+                
+                // first part of sigmoid derivative
                 float a = hiddenAnswers[k][i] * (1 - hiddenAnswers[k][i]);
                 
                 //perform the summation over all the original errors
@@ -546,7 +548,7 @@ void neuralNetwork::updateInputWeights() {
                    temp += error[k][j] * hiddenWeights[j][i];
                 
                 //summation for the final equation
-                summation += temp * patterns[k][h];
+                summation += (-temp * a) * patterns[k][h];
             }
             
             //adjust the old weight with the results of the summations
