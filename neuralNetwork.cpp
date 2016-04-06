@@ -305,7 +305,6 @@ bool neuralNetwork::writeHeader(string fname) {
     return true;
 }
 
-
 bool neuralNetwork::writeResults(string fname) {
     //create the file
     ofstream file;
@@ -408,27 +407,6 @@ bool neuralNetwork::createNodes() {
     }
 
     return true;
-}
-
-//to be used after back propagation is calculated
-void neuralNetwork::updateNodeWeights() {
-    for(int i = 0; i < numHiddenNodes; i++) {
-        //refresh the counter so we put the data in the right spot
-        hiddenNodes[i]->resetCurrentWeightCounter();
-        
-        for(int j = 0; j < numInNodes; j++) {
-            hiddenNodes[i]->addWeight(inWeights[i][j]);
-        }
-    }
-    
-    for(int i = 0; i < numOutNodes; i++) {
-        //refresh the counter
-        outNodes[i]->resetCurrentWeightCounter();
-        
-        for(int j = 0; j < numHiddenNodes; j++){
-            outNodes[i]->addWeight(hiddenWeights[i][j]);
-        }
-    }
 }
 
 
@@ -574,6 +552,23 @@ void neuralNetwork::updateInputWeights() {
             //adjust the old weight with the results of the summations
             inWeights[i][h] = inWeights[i][h] + (beta * summation);
             
+        }
+    }
+}
+
+void neuralNetwork::updateNodeWeights() {
+    //update all the hidden node weights for each input
+    for(int i = 0; i < numHiddenNodes; i++) {
+        hiddenNodes[i]->resetCurrentWeightCounter();
+        for(int j = 0; j < numInNodes; j++) {
+            hiddenNodes[i]->addWeight(inWeights[i][j]);
+        }
+    }
+    //update all the output node weights for each hidden node
+    for(int i = 0; i < numOutNodes; i++) {
+        outNodes[i]->resetCurrentWeightCounter();
+        for(int j = 0; j < numHiddenNodes; j++){
+            outNodes[i]->addWeight(hiddenWeights[i][j]);
         }
     }
     

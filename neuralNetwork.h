@@ -34,6 +34,8 @@ class neuralNetwork {
         bool writeHeader(string fname);
         // Write the results of the summation/sigmoid in the file
         bool writeResults(string fname);
+        // Output the calculated error to a file
+        bool writeSystemError();
         // Create the appropriate number of nodes to run
         bool createNodes();
         
@@ -47,13 +49,11 @@ class neuralNetwork {
         
         // Calculate the error of the given vs. the goal
         void calculateError();
-        // Output the calculated error to a file
-        bool writeSystemError();
         // Calculate the difference needed in the weights and
         // then store that new information in the array
         void updateHiddenWeights();
         void updateInputWeights();
-        // Updates the weights stored in the nodes
+        // Update the node weights
         void updateNodeWeights();
         
         /*******************
