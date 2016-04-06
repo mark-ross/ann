@@ -58,8 +58,9 @@ void neuralNetwork::run(int flag) {
     //allocate the appropriate space
     if(!createNodes()) exit(-3);
     
+    int generation = 0;
+    
     do {
-        //cin.get();
         runData();
         
         if(debug) {
@@ -70,25 +71,26 @@ void neuralNetwork::run(int flag) {
             
             updateNodeWeights();
         }
-    } while(systemError > 0.00001);
+        
+        if(generation % 1000 == 0)
+            cout << generation << ": " << systemError << endl;
+        generation++;
+        
+    } while(systemError > 0.000000001);
     
-    cout << "Correct -- Goals" << endl;
+    cout << "\n\nCorrect -- Goals\t|\tFinal -- Output" << endl;
     for(int i = 0; i < numPatterns; i++) {
         for(int j = 0; j < numOutNodes; j++) {
             cout << correct[i][j] << " ";
         }
-        cout << endl;
-    }
-    
-    cout << "Final -- Output" << endl;
-    for(int i = 0; i < numPatterns; i++) {
+        cout << "\t|\t";
         for(int j = 0; j < numOutNodes; j++) {
             cout << outAnswers[i][j] << " ";
         }
         cout << endl;
     }
     
-    cout << "All finished." << endl;
+    cout << "\n\nAll finished." << endl;
     cout << "Check output.out for the output." << endl;
     
 }
@@ -523,7 +525,7 @@ void neuralNetwork::calculateError() {
 void neuralNetwork::updateHiddenWeights() {
     
     float summation = 0;
-    float alpha = 0.01;
+    float alpha = 0.1;
 
     for(int j = 0; j < numOutNodes; j++) {
         for(int i = 0; i < numHiddenNodes; i++) {
@@ -549,7 +551,7 @@ void neuralNetwork::updateHiddenWeights() {
 
 void neuralNetwork::updateInputWeights() {
     float summation = 0;
-    float beta = 0.01;
+    float beta = 0.1;
     float temp = 0;
     
 
