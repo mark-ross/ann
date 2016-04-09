@@ -25,7 +25,7 @@ neuralNetwork::~neuralNetwork() {
     
     if(debug == true) {
         //delete the training set
-        for(int i = 0; i < numCorrectPatterns; i++) {
+        for(int i = 0; i < numPatterns; i++) {
             delete [] correct[i];
             delete [] error[i];
         }
@@ -46,11 +46,9 @@ void neuralNetwork::run(int flag) {
     if(flag == 1) debug = true;
     else          debug = false;
     
-    cout << "Beginning to read the files" << endl;
     fileRead();
-    cout << "Data has been stored\n" << endl;
     
-    cout << "\nData Discovered" << endl;
+    cout << "\nTopology:" << endl;
     cout << "\tInput Nodes: " << numInNodes << endl;
     cout << "\tHidden Nodes: " << numHiddenNodes << endl;
     cout << "\tOutput Nodes: " << numOutNodes << endl;
@@ -60,12 +58,12 @@ void neuralNetwork::run(int flag) {
     if(debug) {
         int generation = 0;
         do {
-            runData();
+            calculateSystem();
             calculateError();
             updateHiddenWeights();
             updateInputWeights();
             
-            if(generation % 1000 == 0)
+            if(generation % 10000 == 0)
                 cout << "Generation: " << generation << " -- Error: " << systemError << endl;
             generation++;
             
@@ -84,18 +82,18 @@ void neuralNetwork::run(int flag) {
         }
     } else {
         //Simply run the data given
-        runData();
-    }
+        calculateSystem();
     
-    cout << "\n\nFinal -- Output" << endl;
-    for(int i = 0; i < numPatterns; i++) {
-        for(int j = 0; j < numOutNodes; j++) {
-            cout << outAnswers[i][j] << " ";
+        cout << "\n\nFinal -- Output" << endl;
+        for(int i = 0; i < numPatterns; i++) {
+            for(int j = 0; j < numOutNodes; j++) {
+                cout << outAnswers[i][j] << " ";
+            }
+            cout << endl;
         }
-        cout << endl;
     }
     
-    if(!writeResults(outputFile))
+    if(!writeResults())
         cout << "Error writing results of the system" << endl;
 
     cout << "\n\nAll finished." << endl;
@@ -271,6 +269,7 @@ bool neuralNetwork::readCorrect(string fname) {
     
     //read the first three numbers
     //and store them in variables
+    int numCorrectOutNodes, numCorrectPatterns;
     file >> numCorrectPatterns;
     file >> numCorrectOutNodes;
     
@@ -319,13 +318,13 @@ bool neuralNetwork::readCorrect(string fname) {
     return true;
 }
 
-bool neuralNetwork::writeResults(string fname) {
+bool neuralNetwork::writeResults() {
     //create the file
     ofstream file;
     
     //open the file in append mode
     // or return with false upon failure
-    file.open( fname.c_str() , ios::trunc);
+    file.open( outputFile.c_str() , ios::trunc);
         if(file.fail()) return false;
         
     //simply write the number of patterns checked
@@ -363,59 +362,46 @@ bool neuralNetwork::writeSystemError() {
 }
 
 
-void neuralNetwork::runData() {
-    
-    for(int i = 0; i < numPatterns; i++) {
-        //calculate the result for all the patterns
-        calculateSystem(i);
-    }
-}
-
-
-void neuralNetwork::calculateSystem(int patternNumber) {
-
-    float sum;
-    
-    //first let's calculate the hidden nodes
-    for(int i = 0; i < numHiddenNodes; i++) {
-        //clear the junk data
-        sum = 0;
+void neuralNetwork::calculateSystem() {
+    for(int k = 0; k < numPatterns; k++) {
+        float sum;
         
-        //for the number of values
-        for(int j = 0; j < numInNodes; j++) {
-	        
-            //create two temp variables
-            //useful for debugging
-            float a = inWeights[i][j];
-            float b = patterns[patternNumber][j];
-
-            //increase the set sum
-            sum += a*b;
-        }
-        
-        //sigmoid function
-        sum = 1/(1+exp(-sum));
-        
-        //set the sum to the output node value
-        hiddenAnswers[patternNumber][i] = sum;
-    }
-    
-    for(int i = 0; i < numOutNodes; i++) {
-        sum = 0;  //zero out the sum
-        
-        for(int j = 0; j < numHiddenNodes; j++) {
-            //create two temp variables
-            //useful for debugging
-            float a = hiddenWeights[i][j];
-            float b = hiddenAnswers[patternNumber][j];
-       
-            //increase the set sum
-            sum += a*b;
+        //first let's calculate the hidden nodes
+        for(int i = 0; i < numHiddenNodes; i++) {
+            //clear the junk data
+            sum = 0;
             
+            //for the number of values
+            for(int j = 0; j < numInNodes; j++) {
+                //create two temp variables
+                //useful for debugging
+                float a = inWeights[i][j];
+                float b = patterns[k][j];
+                //increase the set sum
+                sum += a*b;
+            }
+            
+            //sigmoid function
+            sum = 1/(1+exp(-sum));
+            //set the sum to the output node value
+            hiddenAnswers[k][i] = sum;
         }
         
-        //set the sum to the output node value
-        outAnswers[patternNumber][i] = sum;
+        for(int i = 0; i < numOutNodes; i++) {
+            sum = 0;  //zero out the sum
+            
+            for(int j = 0; j < numHiddenNodes; j++) {
+                //create two temp variables
+                //useful for debugging
+                float a = hiddenWeights[i][j];
+                float b = hiddenAnswers[k][j];
+                //increase the set sum
+                sum += a*b;
+            }
+            
+            //set the sum to the output node value
+            outAnswers[k][i] = sum;
+        }
     }
 }
 
@@ -423,13 +409,13 @@ void neuralNetwork::calculateSystem(int patternNumber) {
 void neuralNetwork::calculateError() {
     float summation = 0;
     // For all the patterns calculated
-    for (int k = 0; k < numCorrectPatterns; k++) {
+    for (int k = 0; k < numPatterns; k++) {
         for(int i = 0; i < numOutNodes; i++) {
             //sigma-k-j in the book
             float a = correct[k][i] - outAnswers[k][i];
             error[k][i] = a;
-            
-            summation += pow(a,2);  //for error in the book
+            //for error in the book
+            summation += pow(a,2);
         }
     }
     
@@ -448,7 +434,7 @@ void neuralNetwork::updateHiddenWeights() {
             
             //for all the patterns
             for(int k = 0; k < numPatterns; k++) {
-                //finally finish the derivative by multiplying by the
+                //finish the derivative by multiplying by the
                 //yield of hidden node at index i
                 summation += -error[k][j] * hiddenAnswers[k][i];
             }

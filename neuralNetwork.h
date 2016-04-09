@@ -30,15 +30,14 @@ class neuralNetwork {
             bool readCorrect(string fname);
             
         // Write the results of the summation/sigmoid in the file
-        bool writeResults(string fname);
+        bool writeResults();
         // Output the calculated error to a file
         bool writeSystemError();
         // Create the appropriate number of nodes to run
         bool createNodes();
-        
-        void runData();
-            // Run the summation on all the values -- no nodes
-            void calculateSystem(int patternNumber);
+
+        // Run the summation on all the values -- no nodes
+        void calculateSystem();
         
         // Calculate the error of the given vs. the goal
         void calculateError();
@@ -64,11 +63,6 @@ class neuralNetwork {
         int numVals;
         // The maximum value that a value can be in the pattern
         int maxVal;
-        
-        //number of correct value patterns
-        int numCorrectPatterns;
-        //number of expected output nodes
-        int numCorrectOutNodes;
         
         //number for total system error
         float systemError;
