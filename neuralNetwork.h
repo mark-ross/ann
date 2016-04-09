@@ -1,5 +1,4 @@
 #include <string>
-#include "node.h"
 
 using namespace std;
 
@@ -30,8 +29,6 @@ class neuralNetwork {
             // Parse the goal values so as to calculate error later
             bool readCorrect(string fname);
             
-        // Write the appropriate header in the output file
-        bool writeHeader(string fname);
         // Write the results of the summation/sigmoid in the file
         bool writeResults(string fname);
         // Output the calculated error to a file
@@ -40,21 +37,16 @@ class neuralNetwork {
         bool createNodes();
         
         void runData();
-            //updates the Nodes to reflect the new pattern values
-            void updateNodes(float *patternSet);
-            // updates the information in the answers array to hold the new answers
-            void storeAnswers(int index);
-            // Run the summation on all the output nodes
-            void calculateNodes();
+            // Run the summation on all the values -- no nodes
+            void calculateSystem(int patternNumber);
         
         // Calculate the error of the given vs. the goal
         void calculateError();
+        
         // Calculate the difference needed in the weights and
         // then store that new information in the array
         void updateHiddenWeights();
         void updateInputWeights();
-        // Update the node weights
-        void updateNodeWeights();
         
         /*******************
          * DATA ************
@@ -88,14 +80,6 @@ class neuralNetwork {
         //save the file name for the output later
         string outputFile;
         string folderName;
-        
-        // The dynamically allocated array of nodes
-        // that are described in the numbers above
-        // num of of nodes = numInNodes + numOutNodes
-        // IMPORTANT :: IN NODES ALWAYS FIRST IN ARRAY
-        node **inNodes;
-        node **hiddenNodes;
-        node **outNodes;
         
         //Create a 2 dimensional array to hold
         // the data for the patterns.
