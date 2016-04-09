@@ -1,5 +1,5 @@
 ann: neuralNetwork.o main.o
-	g++ -g -o ann main.o neuralNetwork.o
+	g++ -o ann main.o neuralNetwork.o
 
 neuralNetwork.o: neuralNetwork.h neuralNetwork.cpp
 	g++ -c -g neuralNetwork.cpp
