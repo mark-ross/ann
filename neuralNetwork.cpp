@@ -10,8 +10,41 @@ float digit_rounding(float num) {
     return (floor(num*100000))/100000;
 }
 
-neuralNetwork::neuralNetwork() {
+neuralNetwork::neuralNetwork(int argc, char* argv[]) {
     //Do stuff here!
+    
+    numInNodes, numHiddenNodes, numOutNodes = 0;
+    numPatterns, numVals, maxVal = 0;
+    systemError = 0.0;
+    debug = false;
+    folderName = "";
+    
+    //if there are arguments passed into the program
+    if(argc > 1) {
+        //for all the arguments
+        for(int i = 0; i < argc; i++) {
+            //typecast a string into tmp
+            string tmp = string(argv[i]);
+            
+            /********************
+             * FLAG CATCHING ****
+             *******************/
+            if(tmp == "-f") {
+                if(i+1 < argc) {
+                    folderName = string(argv[i+1]);
+                    i++; //no need to check the file name
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann -f <FILE_NAME>" << endl;
+                    cout << "Exiting..." << endl;
+                    exit(-1);
+                }
+            } else if(tmp == "-b") {
+                //create the backwards propagation
+                debug = true;
+            }
+        }
+    }
 }
 
 
@@ -39,12 +72,7 @@ neuralNetwork::~neuralNetwork() {
 }
 
 
-void neuralNetwork::run(int flag) {
-    
-    //determine whether to run the
-    //correction code or not
-    if(flag == 1) debug = true;
-    else          debug = false;
+void neuralNetwork::run() {
     
     fileRead();
     
@@ -105,8 +133,10 @@ void neuralNetwork::fileRead() {
     
     //ask the user which folder to look for the files
     //This allows for multiple test cases
-    cout << "What folder? (no slash) --> ";
-    cin >> folderName;
+    if(folderName == "") {
+        cout << "What folder? (no slash) --> ";
+        cin >> folderName;
+    }
 
     string weightsFile = folderName + "/" + "weights.in";
     string patternsFile = folderName + "/" + "patterns.in";

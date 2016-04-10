@@ -4,7 +4,7 @@ using namespace std;
 
 class neuralNetwork {
     public:
-        neuralNetwork();
+        neuralNetwork(int argc, char* argv[]);
         ~neuralNetwork();
         
         //This function runs the functions
@@ -13,7 +13,7 @@ class neuralNetwork {
         // Also calls the appropciate
         // garbage cleanup at the end.
         void run();
-        void run(int debug = 0);
+        //void run(int debug = 0);
         
     private:
         /*******************

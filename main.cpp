@@ -7,13 +7,9 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     
-    neuralNetwork q;
+    neuralNetwork q(argc,argv);
     
-    if(argc < 2) {
-        q.run(0);  //without error stuff
-    } else {
-        q.run(1);  //with error calculation
-    }
+    q.run();
     
     return 0;
 }
