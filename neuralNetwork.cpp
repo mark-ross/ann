@@ -56,7 +56,7 @@ neuralNetwork::~neuralNetwork() {
     for(int i = 0; i < numOutNodes; i++)
         delete [] hiddenWeights[i];
     
-    if(debug == true) {
+    if(debug) {
         //delete the training set
         for(int i = 0; i < numPatterns; i++) {
             delete [] correct[i];
@@ -166,10 +166,7 @@ void neuralNetwork::fileRead() {
 bool neuralNetwork::readWeights(string fname) {
     //open the file
     ifstream file;
-    
     //open the file
-    //If there is a problem,
-    //return false
     file.open( fname.c_str() );
         if(file.fail()) {
             cout << "Error opening " << fname << endl;
@@ -189,6 +186,7 @@ bool neuralNetwork::readWeights(string fname) {
     inWeights = new float* [numHiddenNodes];
         if(!inWeights) return false;
         
+    cout << "Input to Hidden Weights" << endl;
     // Generate the weights storage for the hidden nodes from input
     for(int i = 0; i < numHiddenNodes; i++) {
         inWeights[i] = new float[numInNodes];
@@ -197,13 +195,16 @@ bool neuralNetwork::readWeights(string fname) {
         //now we loop through the rest of the data
         for(int j = 0; j < numInNodes; j++) {
             file >> inWeights[i][j];
+            cout << inWeights[i][j] << " ";
         }
+        cout << endl;
     }
     
     //allocate memory for the weights
     hiddenWeights = new float* [numOutNodes];
         if(!hiddenWeights) return false;
     
+    cout << "\nHidden to Output Weights" << endl;
     for(int i = 0; i < numOutNodes; i++) {
         
         //allocate even more memory
@@ -214,7 +215,9 @@ bool neuralNetwork::readWeights(string fname) {
         //and stash the weight data
         for(int j = 0; j < numHiddenNodes; j++) {
             file >> hiddenWeights[i][j];
+            cout << hiddenWeights[i][j] << " ";
         }
+        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -254,6 +257,7 @@ bool neuralNetwork::readInputs(string fname) {
     hiddenAnswers = new float* [numPatterns];
         if(!hiddenAnswers) return false;
     
+    cout << "\nPattern values (Normalized)" << endl;
     //loop through the number of rows
     for(int i = 0; i < numPatterns; i++) {
         
@@ -274,7 +278,9 @@ bool neuralNetwork::readInputs(string fname) {
         for(int j = 0; j < numVals; j++) {
             file >> patterns[i][j];
             patterns[i][j] /= maxVal;
+            cout << patterns[i][j] << " ";
         }
+        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -323,6 +329,7 @@ bool neuralNetwork::readCorrect(string fname) {
     error = new float*[numPatterns];
         if(!error) return false;
     
+    cout << "\nCorrect Values" << endl;
     //loop through the number of rows
     for(int i = 0; i < numCorrectPatterns; i++) {
         
@@ -338,7 +345,9 @@ bool neuralNetwork::readCorrect(string fname) {
         //and stash the weight data
         for(int j = 0; j < numCorrectOutNodes; j++) {
             file >> correct[i][j];
+            cout << correct[i][j] << " ";
         }
+        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -347,6 +356,7 @@ bool neuralNetwork::readCorrect(string fname) {
     //once everything is finished, return true
     return true;
 }
+
 
 bool neuralNetwork::writeResults() {
     //create the file
@@ -393,20 +403,27 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::calculateSystem() {
+    cout << "\nBegin Calculating System" << endl;
+    
     for(int k = 0; k < numPatterns; k++) {
+        cout << "\tFor pattern #" << k << endl;
         float sum;
         
+        cout << "\t\tCalculate the Hidden Nodes" << endl;
         //first let's calculate the hidden nodes
         for(int i = 0; i < numHiddenNodes; i++) {
             //clear the junk data
             sum = 0;
             
+            cout << "\t\t\tHidden node #" << i << endl;
             //for the number of values
             for(int j = 0; j < numInNodes; j++) {
                 //create two temp variables
                 //useful for debugging
                 float a = inWeights[i][j];
+                cout << "\t\t\t\tInput Weight: " << a << endl;
                 float b = patterns[k][j];
+                cout << "\t\t\t\tInput Value: " << b << endl; 
                 //increase the set sum
                 sum += a*b;
             }
@@ -415,24 +432,31 @@ void neuralNetwork::calculateSystem() {
             sum = 1/(1+exp(-sum));
             //set the sum to the output node value
             hiddenAnswers[k][i] = sum;
+            cout << "\t\t\tAnswer for hidden Node #" << i << " = " << hiddenAnswers[k][i] << endl;
         }
         
+        cout << "\t\tCalculate the OutputNodes" << endl;
         for(int i = 0; i < numOutNodes; i++) {
             sum = 0;  //zero out the sum
             
+            cout << "\t\t\tOutput Node #" << i << endl;
             for(int j = 0; j < numHiddenNodes; j++) {
                 //create two temp variables
                 //useful for debugging
                 float a = hiddenWeights[i][j];
+                cout << "\t\t\t\tHiddenNode Weight: " << a << endl;
                 float b = hiddenAnswers[k][j];
+                cout << "\t\t\t\tHiddenNode Value: " << b << endl;
                 //increase the set sum
                 sum += a*b;
             }
             
             //set the sum to the output node value
             outAnswers[k][i] = sum;
+            cout << "\t\t\tAnswer for the outputNode #" << i << " = " << outAnswers[k][i] << endl;
         }
     }
+    cout << "Finished" << endl;
 }
 
 
