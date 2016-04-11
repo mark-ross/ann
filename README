@@ -20,3 +20,9 @@ The following flags should be used with the -b flag **
 	
 -g <INTEGER_NUMBER>
 	--Specify the number of generations to run correction
+
+--alpha <FLOAT_NUMBER>
+	--Specify the rate of growth of the output to hidden weights
+	
+--beta <FLOAT_NUMBER>
+	--Specify the rate of growth in the hidden to input weights

@@ -71,6 +71,10 @@ class neuralNetwork {
         // The error threshold
         float threshold;
         
+        // the alpha and beta growth of the backpropagation
+        float alpha;
+        float beta;
+        
         //number for total system error
         float systemError;
         

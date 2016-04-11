@@ -21,7 +21,9 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
     
     numGens = 0;
     numBeforePrint = 1000;
-    threshold = .0000000001;
+    threshold = 0.0000000001;
+    
+    alpha, beta = 0.001;
     
     //if there are arguments passed into the program
     if(argc > 1) {
@@ -55,6 +57,7 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
                     cout << "Error in usage:" << endl;
                     cout << "./ann -g <NUMBER>" << endl;
                     cout << "Exiting..." << endl;
+                    exit(-1);
                 }
             } else if(tmp == "-v") {
                 //determine the number of generations to run
@@ -66,6 +69,7 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
                     cout << "Error in usage:" << endl;
                     cout << "./ann -v <NUMBER>" << endl;
                     cout << "Exiting..." << endl;
+                    exit(-1);
                 }
             } else if(tmp == "-t") {
                 //determine the error threshold
@@ -76,6 +80,27 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
                     cout << "Error in usage:" << endl;
                     cout << "./ann -t <NUMBER>" << endl;
                     cout << "Exiting..." << endl;
+                    exit(-1);
+                }
+            } else if(tmp == "--alpha") {
+                if(i+1 < argc) {
+                    alpha = atof(argv[i+1]);
+                    i++;
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann --alpha <FLOATING_NUMBER>" << endl;
+                    cout << "Exiting..." << endl;
+                    exit(-1);
+                }
+            } else if(tmp == "--beta") {
+                if(i+1 < argc) {
+                    beta = atof(argv[i+1]);
+                    i++;
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann --beta <FLOATING_NUMBER>" << endl;
+                    cout << "Exiting..." << endl;
+                    exit(-1);
                 }
             }
         }
@@ -517,7 +542,6 @@ void neuralNetwork::calculateError() {
 void neuralNetwork::updateHiddenWeights() {
     
     float summation = 0;
-    float alpha = 0.1;
 
     for(int j = 0; j < numOutNodes; j++) {
         for(int i = 0; i < numHiddenNodes; i++) {
@@ -538,7 +562,6 @@ void neuralNetwork::updateHiddenWeights() {
 
 void neuralNetwork::updateInputWeights() {
     float summation = 0;
-    float beta = 0.1;
     float temp = 0;
     
 
