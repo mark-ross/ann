@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <thread>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
     numBeforePrint = 1000;
     threshold = 0.0000000001;
     
-    alpha, beta = 0.001;
+    alpha, beta = 0.01;
     
     //if there are arguments passed into the program
     if(argc > 1) {
