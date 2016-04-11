@@ -19,6 +19,10 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
     debug = false;
     folderName = "";
     
+    numGens = 0;
+    numBeforePrint = 1000;
+    threshold = .0000000001;
+    
     //if there are arguments passed into the program
     if(argc > 1) {
         //for all the arguments
@@ -42,6 +46,37 @@ neuralNetwork::neuralNetwork(int argc, char* argv[]) {
             } else if(tmp == "-b") {
                 //create the backwards propagation
                 debug = true;
+            } else if(tmp == "-g") {
+                //prescribed number of generations run
+                if(i+1 < argc) {
+                    numGens = atoi(argv[i+1]);
+                    i++;
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann -g <NUMBER>" << endl;
+                    cout << "Exiting..." << endl;
+                }
+            } else if(tmp == "-v") {
+                //determine the number of generations to run
+                //before printing the results of the error
+                if(i+1 < argc) {
+                    numBeforePrint = atoi(argv[i+1]);
+                    i++;
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann -v <NUMBER>" << endl;
+                    cout << "Exiting..." << endl;
+                }
+            } else if(tmp == "-t") {
+                //determine the error threshold
+                if(i+1 < argc) {
+                    threshold = atof(argv[i+1]);
+                    i++;
+                } else {
+                    cout << "Error in usage:" << endl;
+                    cout << "./ann -t <NUMBER>" << endl;
+                    cout << "Exiting..." << endl;
+                }
             }
         }
     }
@@ -91,11 +126,11 @@ void neuralNetwork::run() {
             updateHiddenWeights();
             updateInputWeights();
             
-            if(generation % 10000 == 0)
+            if(generation % numBeforePrint == 0)
                 cout << "Generation: " << generation << " -- Error: " << systemError << endl;
             generation++;
             
-        } while(systemError > 0.000000001);
+        } while(systemError > threshold && pow(generation,2) != pow(numGens,2));
 
         cout << "\n\nCorrect -- Goals\t|\tFinal -- Output" << endl;
         for(int i = 0; i < numPatterns; i++) {
@@ -403,60 +438,61 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::calculateSystem() {
-    cout << "\nBegin Calculating System" << endl;
+    //cout << "\nBegin Calculating System" << endl;
     
     for(int k = 0; k < numPatterns; k++) {
-        cout << "\tFor pattern #" << k << endl;
+        //cout << "\tFor pattern #" << k << endl;
         float sum;
         
-        cout << "\t\tCalculate the Hidden Nodes" << endl;
+        //cout << "\t\tCalculate the Hidden Nodes" << endl;
         //first let's calculate the hidden nodes
         for(int i = 0; i < numHiddenNodes; i++) {
             //clear the junk data
             sum = 0;
             
-            cout << "\t\t\tHidden node #" << i << endl;
+            //cout << "\t\t\tHidden node #" << i << endl;
             //for the number of values
             for(int j = 0; j < numInNodes; j++) {
                 //create two temp variables
                 //useful for debugging
                 float a = inWeights[i][j];
-                cout << "\t\t\t\tInput Weight: " << a << endl;
                 float b = patterns[k][j];
-                cout << "\t\t\t\tInput Value: " << b << endl; 
                 //increase the set sum
                 sum += a*b;
+                //cout << "\t\t\t\tInput Weight: " << a << "\t\tInput Value: " << b << "\tMultiplied: " << a*b << endl;
             }
             
+            //cout << "\t\t\t\tSum pre sigmoid: " << sum << endl;
             //sigmoid function
             sum = 1/(1+exp(-sum));
+            //cout << "\t\t\t\tSum post sigmoid: " << sum << endl;
             //set the sum to the output node value
             hiddenAnswers[k][i] = sum;
-            cout << "\t\t\tAnswer for hidden Node #" << i << " = " << hiddenAnswers[k][i] << endl;
+            //cout << "\t\t\tAnswer for hidden Node #" << i << " = " << hiddenAnswers[k][i] << endl;
         }
         
-        cout << "\t\tCalculate the OutputNodes" << endl;
+        //cout << "\t\tCalculate the OutputNodes" << endl;
         for(int i = 0; i < numOutNodes; i++) {
             sum = 0;  //zero out the sum
             
-            cout << "\t\t\tOutput Node #" << i << endl;
+            //cout << "\t\t\tOutput Node #" << i << endl;
             for(int j = 0; j < numHiddenNodes; j++) {
                 //create two temp variables
                 //useful for debugging
                 float a = hiddenWeights[i][j];
-                cout << "\t\t\t\tHiddenNode Weight: " << a << endl;
                 float b = hiddenAnswers[k][j];
-                cout << "\t\t\t\tHiddenNode Value: " << b << endl;
                 //increase the set sum
                 sum += a*b;
+                //cout << "\t\t\t\tHidden Weight: " << a << "\t\tHidden Value: " << b << "\tMultiplied: " << a*b << endl;
             }
             
             //set the sum to the output node value
             outAnswers[k][i] = sum;
-            cout << "\t\t\tAnswer for the outputNode #" << i << " = " << outAnswers[k][i] << endl;
+            //cout << "\t\t\tAnswer for the outputNode #" << i << " = " << outAnswers[k][i] << endl;
         }
+    //cin.get();
     }
-    cout << "Finished" << endl;
+    //cout << "Finished" << endl;
 }
 
 

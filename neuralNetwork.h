@@ -64,6 +64,13 @@ class neuralNetwork {
         // The maximum value that a value can be in the pattern
         int maxVal;
         
+        // The number of generations set to run
+        int numGens;
+        // THe number of generations before printing
+        int numBeforePrint;
+        // The error threshold
+        float threshold;
+        
         //number for total system error
         float systemError;
         

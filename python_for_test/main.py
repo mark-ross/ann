@@ -7,13 +7,13 @@ def main():
     file.write("86 40 12\n")
     for _ in range(40):
         for _ in range(86):
-            file.write(str((math.floor(random.uniform(0.0,1.0)*100))/100))
+            file.write(str(math.floor(random.uniform(0.0,0.5)*100)/100))
             file.write(" ")
         file.write("\n")
         
     for _ in range(12):
         for _ in range(40):
-             file.write(str((math.floor(random.uniform(0.0,1.0)*100))/100))
+             file.write(str(math.floor(random.uniform(0.0,0.5)*100)/100))
              file.write(" ")
         file.write("\n")
     file.close()
@@ -21,10 +21,10 @@ def main():
     
     patterns = open("../pytest/patterns.in", "w")
     
-    patterns.write("20 86 1\n")
+    patterns.write("20 86 255\n")
     for _ in range(20):
         for _ in range(86):
-            patterns.write(str((math.floor(random.uniform(0.0,1.0)*100))/100))
+            patterns.write(str(random.randrange(0,255)))
             patterns.write(" ")
         patterns.write("\n")
     patterns.close()
@@ -34,7 +34,7 @@ def main():
     correct.write("20 12\n")
     for _ in range(20):
         for _ in range(12):
-            correct.write(str((math.floor(random.uniform(0.0,1.0)*100))/100))
+            correct.write(str(random.randrange(0,10)))
             correct.write(" ")
         correct.write("\n")
     correct.close()
