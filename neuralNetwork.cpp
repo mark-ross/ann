@@ -464,61 +464,58 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::calculateSystem() {
-    //cout << "\nBegin Calculating System" << endl;
     
-    for(int k = 0; k < numPatterns; k++) {
-        //cout << "\tFor pattern #" << k << endl;
-        float sum;
+    thread threads[numPatterns];
+    
+    for(int k = 0; k < numPatterns; k++)
+        threads[k] = thread(&neuralNetwork::runPattern, this, k);
+
+    for(int k = 0; k < numPatterns; k++)
+        threads[k].join();
         
-        //cout << "\t\tCalculate the Hidden Nodes" << endl;
-        //first let's calculate the hidden nodes
-        for(int i = 0; i < numHiddenNodes; i++) {
-            //clear the junk data
-            sum = 0;
-            
-            //cout << "\t\t\tHidden node #" << i << endl;
-            //for the number of values
-            for(int j = 0; j < numInNodes; j++) {
-                //create two temp variables
-                //useful for debugging
-                float a = inWeights[i][j];
-                float b = patterns[k][j];
-                //increase the set sum
-                sum += a*b;
-                //cout << "\t\t\t\tInput Weight: " << a << "\t\tInput Value: " << b << "\tMultiplied: " << a*b << endl;
-            }
-            
-            //cout << "\t\t\t\tSum pre sigmoid: " << sum << endl;
-            //sigmoid function
-            sum = 1/(1+exp(-sum));
-            //cout << "\t\t\t\tSum post sigmoid: " << sum << endl;
-            //set the sum to the output node value
-            hiddenAnswers[k][i] = sum;
-            //cout << "\t\t\tAnswer for hidden Node #" << i << " = " << hiddenAnswers[k][i] << endl;
+    //delete threads;
+}
+
+void neuralNetwork::runPattern(int k) {
+    float sum;
+    
+    //first let's calculate the hidden nodes
+    for(int i = 0; i < numHiddenNodes; i++) {
+        //clear the junk data
+        sum = 0;
+        
+        //for the number of values
+        for(int j = 0; j < numInNodes; j++) {
+            //create two temp variables
+            //useful for debugging
+            float a = inWeights[i][j];
+            float b = patterns[k][j];
+            //increase the set sum
+            sum += a*b;
         }
         
-        //cout << "\t\tCalculate the OutputNodes" << endl;
-        for(int i = 0; i < numOutNodes; i++) {
-            sum = 0;  //zero out the sum
-            
-            //cout << "\t\t\tOutput Node #" << i << endl;
-            for(int j = 0; j < numHiddenNodes; j++) {
-                //create two temp variables
-                //useful for debugging
-                float a = hiddenWeights[i][j];
-                float b = hiddenAnswers[k][j];
-                //increase the set sum
-                sum += a*b;
-                //cout << "\t\t\t\tHidden Weight: " << a << "\t\tHidden Value: " << b << "\tMultiplied: " << a*b << endl;
-            }
-            
-            //set the sum to the output node value
-            outAnswers[k][i] = sum;
-            //cout << "\t\t\tAnswer for the outputNode #" << i << " = " << outAnswers[k][i] << endl;
-        }
-    //cin.get();
+        //sigmoid function
+        sum = 1/(1+exp(-sum));
+        //cout << "\t\t\t\tSum post sigmoid: " << sum << endl;
+        //set the sum to the output node value
+        hiddenAnswers[k][i] = sum;
     }
-    //cout << "Finished" << endl;
+    
+    for(int i = 0; i < numOutNodes; i++) {
+        sum = 0;  //zero out the sum
+        
+        for(int j = 0; j < numHiddenNodes; j++) {
+            //create two temp variables
+            //useful for debugging
+            float a = hiddenWeights[i][j];
+            float b = hiddenAnswers[k][j];
+            //increase the set sum
+            sum += a*b;
+        }
+        
+        //set the sum to the output node value
+        outAnswers[k][i] = sum;
+    }
 }
 
 

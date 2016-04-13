@@ -38,6 +38,8 @@ class neuralNetwork {
 
         // Run the summation on all the values -- no nodes
         void calculateSystem();
+        //function extrapolated for threading
+        void runPattern(int k);
         
         // Calculate the error of the given vs. the goal
         void calculateError();
