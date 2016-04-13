@@ -247,7 +247,6 @@ bool neuralNetwork::readWeights(string fname) {
     inWeights = new float* [numHiddenNodes];
         if(!inWeights) return false;
         
-    cout << "Input to Hidden Weights" << endl;
     // Generate the weights storage for the hidden nodes from input
     for(int i = 0; i < numHiddenNodes; i++) {
         inWeights[i] = new float[numInNodes];
@@ -256,16 +255,13 @@ bool neuralNetwork::readWeights(string fname) {
         //now we loop through the rest of the data
         for(int j = 0; j < numInNodes; j++) {
             file >> inWeights[i][j];
-            cout << inWeights[i][j] << " ";
         }
-        cout << endl;
     }
     
     //allocate memory for the weights
     hiddenWeights = new float* [numOutNodes];
         if(!hiddenWeights) return false;
     
-    cout << "\nHidden to Output Weights" << endl;
     for(int i = 0; i < numOutNodes; i++) {
         
         //allocate even more memory
@@ -276,9 +272,7 @@ bool neuralNetwork::readWeights(string fname) {
         //and stash the weight data
         for(int j = 0; j < numHiddenNodes; j++) {
             file >> hiddenWeights[i][j];
-            cout << hiddenWeights[i][j] << " ";
         }
-        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -318,7 +312,6 @@ bool neuralNetwork::readInputs(string fname) {
     hiddenAnswers = new float* [numPatterns];
         if(!hiddenAnswers) return false;
     
-    cout << "\nPattern values (Normalized)" << endl;
     //loop through the number of rows
     for(int i = 0; i < numPatterns; i++) {
         
@@ -339,9 +332,7 @@ bool neuralNetwork::readInputs(string fname) {
         for(int j = 0; j < numVals; j++) {
             file >> patterns[i][j];
             patterns[i][j] /= maxVal;
-            cout << patterns[i][j] << " ";
         }
-        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -390,7 +381,6 @@ bool neuralNetwork::readCorrect(string fname) {
     error = new float*[numPatterns];
         if(!error) return false;
     
-    cout << "\nCorrect Values" << endl;
     //loop through the number of rows
     for(int i = 0; i < numCorrectPatterns; i++) {
         
@@ -404,11 +394,8 @@ bool neuralNetwork::readCorrect(string fname) {
             
         //loop through the number of columns
         //and stash the weight data
-        for(int j = 0; j < numCorrectOutNodes; j++) {
+        for(int j = 0; j < numCorrectOutNodes; j++)
             file >> correct[i][j];
-            cout << correct[i][j] << " ";
-        }
-        cout << endl;
     }
     
     //make sure to close the file before exiting!
@@ -464,16 +451,12 @@ bool neuralNetwork::writeSystemError() {
 
 
 void neuralNetwork::calculateSystem() {
-    
     thread threads[numPatterns];
     
     for(int k = 0; k < numPatterns; k++)
         threads[k] = thread(&neuralNetwork::runPattern, this, k);
-
     for(int k = 0; k < numPatterns; k++)
         threads[k].join();
-        
-    //delete threads;
 }
 
 void neuralNetwork::runPattern(int k) {
@@ -496,7 +479,6 @@ void neuralNetwork::runPattern(int k) {
         
         //sigmoid function
         sum = 1/(1+exp(-sum));
-        //cout << "\t\t\t\tSum post sigmoid: " << sum << endl;
         //set the sum to the output node value
         hiddenAnswers[k][i] = sum;
     }
