@@ -2,38 +2,38 @@ import random
 import math
 
 def main():
-    file = open("../pytest/weights.in", 'w')
+    file = open("../pytest_austin/weights.in", 'w')
     
-    file.write("86 40 12\n")
-    for _ in range(40):
-        for _ in range(86):
-            file.write(str(math.floor(random.uniform(0.0,0.5)*100)/100))
+    file.write("480000 120000 1920000\n")
+    for _ in range(1200000):
+        for _ in range(480000):
+            file.write(str(random.randrange(0,255)))
             file.write(" ")
         file.write("\n")
         
-    for _ in range(12):
-        for _ in range(40):
-             file.write(str(math.floor(random.uniform(0.0,0.5)*100)/100))
+    for _ in range(1920000):
+        for _ in range(1200000):
+             file.write(str(random.randrange(0,255)))
              file.write(" ")
         file.write("\n")
     file.close()
     
     
-    patterns = open("../pytest/patterns.in", "w")
+    patterns = open("../pytest_austin/patterns.in", "w")
     
-    patterns.write("20 86 255\n")
-    for _ in range(20):
+    patterns.write("5 480000 255\n")
+    for _ in range(5):
         for _ in range(86):
             patterns.write(str(random.randrange(0,255)))
             patterns.write(" ")
         patterns.write("\n")
     patterns.close()
     
-    correct = open("../pytest/correct.in", "w")
+    correct = open("../pytest_austin/correct.in", "w")
     
-    correct.write("20 12\n")
-    for _ in range(20):
-        for _ in range(12):
+    correct.write("5 1920000\n")
+    for _ in range(5):
+        for _ in range(1920000):
             correct.write(str(random.randrange(0,10)))
             correct.write(" ")
         correct.write("\n")
