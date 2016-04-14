@@ -1,11 +1,22 @@
+UNAME := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	CXX = clang++
+	FLAGS = -pthread -std=c++11 -stdlib=libc++
+else
+	CXX = g++
+	FLAGS = -pthread -std=c++11
+endif
+
+
+
 ann: neuralNetwork.o main.o
-	g++ -o ann main.o neuralNetwork.o -pthread -std=c++11
+	$(CXX) -o ann main.o neuralNetwork.o $(FLAGS)
 
 neuralNetwork.o: neuralNetwork.h neuralNetwork.cpp
-	g++ -c -g neuralNetwork.cpp -pthread -std=c++11
+	$(CXX) -c -g neuralNetwork.cpp $(FLAGS)
 
 main.o: main.cpp
-	g++ -c -g main.cpp -pthread -std=c++11
+	$(CXX) -c -g main.cpp $(FLAGS)
 
 clean:
 	rm -f *~ ann *.o
