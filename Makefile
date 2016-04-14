@@ -1,5 +1,5 @@
 UNAME := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
+ifeq ($(UNAME),Darwin)
 	CXX = clang++
 	FLAGS = -pthread -std=c++11 -stdlib=libc++
 else
