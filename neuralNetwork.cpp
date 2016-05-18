@@ -156,17 +156,17 @@ void neuralNetwork::run() {
                 cout << "Generation: " << generation << " -- Error: " << systemError << endl;
             generation++;
             
-        } while(systemError > threshold && pow(generation,2) != pow(numGens,2));
+        } while(systemError > threshold && generation != numGens);
 
         cout << "\n\nCorrect -- Goals\t|\tFinal -- Output" << endl;
         for(int i = 0; i < numPatterns; i++) {
-            for(int j = 0; j < numOutNodes; j++) {
+            for(int j = 0; j < numOutNodes; j++)
                 cout << correct[i][j] << " ";
-            }
+
             cout << "\t|\t";
-            for(int j = 0; j < numOutNodes; j++) {
+            for(int j = 0; j < numOutNodes; j++)
                 cout << outAnswers[i][j] << " ";
-            }
+
             cout << endl;
         }
     } else {
@@ -175,9 +175,10 @@ void neuralNetwork::run() {
     
         cout << "\n\nFinal -- Output" << endl;
         for(int i = 0; i < numPatterns; i++) {
-            for(int j = 0; j < numOutNodes; j++) {
+            
+            for(int j = 0; j < numOutNodes; j++)
                 cout << outAnswers[i][j] << " ";
-            }
+
             cout << endl;
         }
     }
@@ -253,9 +254,8 @@ bool neuralNetwork::readWeights(string fname) {
             if(!inWeights[i]) return false;
             
         //now we loop through the rest of the data
-        for(int j = 0; j < numInNodes; j++) {
+        for(int j = 0; j < numInNodes; j++)
             file >> inWeights[i][j];
-        }
     }
     
     //allocate memory for the weights
@@ -270,9 +270,8 @@ bool neuralNetwork::readWeights(string fname) {
         
         //loop through the number of columns
         //and stash the weight data
-        for(int j = 0; j < numHiddenNodes; j++) {
+        for(int j = 0; j < numHiddenNodes; j++)
             file >> hiddenWeights[i][j];
-        }
     }
     
     //make sure to close the file before exiting!
@@ -420,9 +419,9 @@ bool neuralNetwork::writeResults() {
         
     //write the data of all the output nodes for all patterns
     for(int k = 0; k < numPatterns; k++) {
-        for(int j = 0; j < numOutNodes; j++) {
+        for(int j = 0; j < numOutNodes; j++)
             file << outAnswers[k][j] << " ";
-        }
+            
         file << "\n";
     }
 
@@ -441,20 +440,23 @@ bool neuralNetwork::writeSystemError() {
     file << digit_rounding(systemError) << "\n";
     
     for(int k = 0; k < numPatterns; k++) {
-        for(int i = 0; i < numOutNodes; i++) {
+        for(int i = 0; i < numOutNodes; i++)
             //set the number of digits to 5 for rounding
             file << digit_rounding(error[k][i]) << " ";
-        }
+
         file << "\n";
     }
 }
 
 
 void neuralNetwork::calculateSystem() {
+    //create the threads
     thread threads[numPatterns];
     
+    //for every pattern, run the data
     for(int k = 0; k < numPatterns; k++)
         threads[k] = thread(&neuralNetwork::runPattern, this, k);
+    //wait for all threads to complete
     for(int k = 0; k < numPatterns; k++)
         threads[k].join();
 }
@@ -539,6 +541,7 @@ void neuralNetwork::updateHiddenWeights() {
         }
     }
 }
+
 
 void neuralNetwork::updateInputWeights() {
     float summation = 0;
